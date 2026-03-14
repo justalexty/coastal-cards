@@ -1,0 +1,124 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/systems/compact_mirror.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/ui/compact_mirror_frame.png" id="2"]
+[ext_resource type="Theme" path="res://assets/ui/witch_theme.tres" id="3"]
+
+[node name="CompactMirror" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1")
+theme = ExtResource("3")
+
+[node name="MirrorFrame" type="TextureRect" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -200.0
+offset_right = 200.0
+offset_bottom = 200.0
+texture = ExtResource("2")
+
+[node name="MirrorInterface" type="Control" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -180.0
+offset_top = -180.0
+offset_right = 180.0
+offset_bottom = 180.0
+
+[node name="StylingPanel" type="TabContainer" parent="MirrorInterface"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+tabs_visible = false
+
+[node name="Identity" type="VBoxContainer" parent="MirrorInterface/StylingPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin = 10.0
+
+[node name="Title" type="Label" parent="MirrorInterface/StylingPanel/Identity"]
+text = "Who are you?"
+theme_type_variation = "HeaderLabel"
+
+[node name="NameLabel" type="Label" parent="MirrorInterface/StylingPanel/Identity"]
+text = "Your witch name:"
+
+[node name="NameInput" type="LineEdit" parent="MirrorInterface/StylingPanel/Identity"]
+placeholder_text = "Enter your name..."
+
+[node name="PronounLabel" type="Label" parent="MirrorInterface/StylingPanel/Identity"]
+text = "Your pronouns:"
+margin_top = 20.0
+
+[node name="PronounGrid" type="GridContainer" parent="MirrorInterface/StylingPanel/Identity"]
+columns = 2
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
+
+[node name="PronounButton0" type="CheckBox" parent="MirrorInterface/StylingPanel/Identity/PronounGrid"]
+text = "She/Her"
+button_group = "pronouns"
+
+[node name="PronounButton1" type="CheckBox" parent="MirrorInterface/StylingPanel/Identity/PronounGrid"]
+text = "He/Him"
+button_group = "pronouns"
+
+[node name="PronounButton2" type="CheckBox" parent="MirrorInterface/StylingPanel/Identity/PronounGrid"]
+text = "They/Them"
+button_group = "pronouns"
+
+[node name="PronounButton3" type="CheckBox" parent="MirrorInterface/StylingPanel/Identity/PronounGrid"]
+text = "Custom"
+button_group = "pronouns"
+
+[node name="CustomPronouns" type="VBoxContainer" parent="MirrorInterface/StylingPanel/Identity"]
+visible = false
+margin_top = 20.0
+
+[node name="CustomNote" type="Label" parent="MirrorInterface/StylingPanel/Identity/CustomPronouns"]
+text = "Enter your pronouns:"
+theme_type_variation = "SmallLabel"
+
+[node name="SubjectInput" type="LineEdit" parent="MirrorInterface/StylingPanel/Identity/CustomPronouns"]
+placeholder_text = "Subject (xe, fae, etc.)"
+
+[node name="ObjectInput" type="LineEdit" parent="MirrorInterface/StylingPanel/Identity/CustomPronouns"]
+placeholder_text = "Object (xem, faer, etc.)"
+
+[node name="PossessiveInput" type="LineEdit" parent="MirrorInterface/StylingPanel/Identity/CustomPronouns"]
+placeholder_text = "Possessive (xyr, faer, etc.)"
+
+[node name="Appearance" type="VBoxContainer" parent="MirrorInterface/StylingPanel"]
+visible = false
+
+[node name="Title" type="Label" parent="MirrorInterface/StylingPanel/Appearance"]
+text = "Your appearance"
+theme_type_variation = "HeaderLabel"
+
+[node name="BodyTypeLabel" type="Label" parent="MirrorInterface/StylingPanel/Appearance"]
+text = "Body type:"
+
+[node name="BodyTypeButtons" type="HBoxContainer" parent="MirrorInterface/StylingPanel/Appearance"]
+[node name="FeminineButton" type="CheckBox" parent="MirrorInterface/StylingPanel/Appearance/BodyTypeButtons"]
+text = "Feminine"
+button_group = "body_type"
+
+[node name="AndrogynousButton" type="CheckBox" parent="MirrorInterface/StylingPanel/Appearance/BodyTypeButtons"]
+text = "Androgynous"
+button_group = "body_type"
+button_pressed = true
+
+[node name="MasculineButton" type="CheckBox" parent="MirrorInterface/StylingPanel/Appearance/BodyTypeButtons"]
+text = "Masculine"
+button_group = "body_type"
+
+[node name="PreviewViewport" type="SubViewport" parent="MirrorInterface"]
+size = Vector2i(128, 128)
+
+[node name="CharacterPreview" type="Node2D" parent="MirrorInterface/PreviewViewport"]
+position = Vector2(64, 64)

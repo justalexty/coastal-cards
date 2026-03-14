@@ -1,0 +1,52 @@
+{
+  "broom_alerts": {
+    "standard": [
+      "BROOM ALERT! {name} just posted for ${price}!",
+      "Quick! {name} listed at ${price} - these never last!",
+      "New broom! ${price} for a {name} - hurry!",
+      "{seller} just posted a {name} for ${price}!"
+    ],
+    "urgent": [
+      "STEAL ALERT! {name} only ${price}! GO GO GO!",
+      "OMG! {name} for ${price}! This won't last 5 minutes!",
+      "DROP EVERYTHING! {name} at ${price}!",
+      "RUN don't walk! {name} listed super cheap!"
+    ],
+    "missed": [
+      "You just missed a {name} by 2 minutes 😭",
+      "Someone snagged that {name} while you were reading...",
+      "Aaaand it's gone. Better luck next time!",
+      "SOLD! Told you they go fast..."
+    ]
+  },
+  "seller_names": {
+    "desperate": [
+      "RentDueTomorrow",
+      "BrokeWitchBrooklyn", 
+      "EvictionNotice",
+      "NeedCashNOW",
+      "LastDayInCity",
+      "DesperateinDumbo"
+    ],
+    "moving": [
+      "MovingMustSell",
+      "LeavingTown",
+      "PackingUp",
+      "NewJobAbroad",
+      "CantTakeItWithMe"
+    ],
+    "upgrading": [
+      "GotANewBroom",
+      "UpgradingFinally",
+      "TreatingMyself",
+      "OutWithTheOld"
+    ]
+  },
+  "timing_patterns": {
+    "morning_rush": "7-9am: Witches posting before work",
+    "lunch_break": "12-1pm: Quick posts during lunch",
+    "evening_dump": "6-8pm: Most active posting time",
+    "late_night": "10pm-12am: Desperate sellers",
+    "weekend": "More frequent on weekends"
+  }
+}

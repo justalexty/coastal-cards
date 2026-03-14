@@ -1,0 +1,65 @@
+{
+  "selling_scenarios": {
+    "for_rent": {
+      "decision_text": [
+        "Your stomach drops as you open Croneslist to sell...",
+        "This broom is your freedom. But rent is due.",
+        "Every flight could be your last before you list it.",
+        "You trace the duct tape with your finger. It's ugly, but it's yours."
+      ],
+      "post_sale": [
+        "The money hits your account. Rent is covered. Your feet already hurt.",
+        "You watch another witch fly past your window. That was you yesterday.",
+        "At least you're not homeless. Just... grounded.",
+        "You stare at the empty broom hook by your door."
+      ]
+    },
+    "for_upgrade": {
+      "decision_text": [
+        "Time to say goodbye to old faithful.",
+        "Someone else will love this broom like you did.",
+        "It served you well, but you've outgrown the duct tape aesthetic.",
+        "One witch's trash is another's treasure, right?"
+      ],
+      "post_sale": [
+        "Sold! Time to hunt for something better.",
+        "Your old broom has a new owner. Circle of life.",
+        "The money will help with the new one. No regrets.",
+        "Goodbye, smelly dog broom. Hello, possibilities!"
+      ]
+    },
+    "premium_desperation": {
+      "decision_text": [
+        "Are you REALLY selling your Moonweave?",
+        "You'll never find another premium this cheap...",
+        "But rent won't pay itself.",
+        "Your beautiful, silent-flying baby..."
+      ],
+      "post_sale": [
+        "What have you done? WHAT HAVE YOU DONE?",
+        "Someone just got the deal of a lifetime. Your lifetime.",
+        "The money doesn't make walking hurt less.",
+        "You sold a Moonweave. For RENT. This will haunt you forever."
+      ]
+    }
+  },
+  "buyer_messages": {
+    "grateful": [
+      "OMG THANK YOU! I've been walking for a month!",
+      "You just saved my life! My feet are killing me!",
+      "FINALLY! I can fly to work again!"
+    ],
+    "premium_excited": [
+      "A MOONWEAVE FOR THIS PRICE?! Christmas came early!",
+      "I can't believe someone would sell this! Their loss!",
+      "Just snagged a premium broom! Best day ever!"
+    ]
+  },
+  "regret_levels": {
+    "immediate": "What have I done?",
+    "first_walk": "This was a mistake.",
+    "first_rain": "I want to cry.",
+    "see_other_flying": "That should be me up there.",
+    "checking_cl_again": "Starting from zero. Again."
+  }
+}

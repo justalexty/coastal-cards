@@ -1,0 +1,74 @@
+{
+  "starting_money": 25,
+  "monthly_rent": 700,
+  "broom_prices": {
+    "student_maple": 250,
+    "old_hazel": 250,
+    "apprentice_ash": 300,
+    "city_birch": 300,
+    "coastal_driftwood": 450,
+    "urban_oak": 500,
+    "twilight_willow": 1200,
+    "moonweave": 1500,
+    "stormchaser": 3000,
+    "deep_sea_kelp": 2200,
+    "aurora_borealis": 5000
+  },
+  "reading_prices": {
+    "single_card": {
+      "base": 5,
+      "tourist_markup": 2,
+      "reputation_multiplier": 0.5
+    },
+    "three_card": {
+      "base": 15,
+      "tourist_markup": 5,
+      "reputation_multiplier": 1.0
+    },
+    "celtic_cross": {
+      "base": 30,
+      "tourist_markup": 10,
+      "reputation_multiplier": 2.0
+    }
+  },
+  "daily_expenses": {
+    "food": 8,
+    "incense": 3,
+    "candles": 2
+  },
+  "permit_costs": {
+    "market_square": 50,
+    "university_district": 75
+  },
+  "table_upgrades": {
+    "worn_cloth": 0,
+    "velvet_cloth": 30,
+    "starlight_silk": 100,
+    "crystal_ball": 150,
+    "brass_candlesticks": 45,
+    "silver_candlesticks": 120
+  },
+  "tips": {
+    "accuracy_bonus": {
+      "perfect": 10,
+      "good": 5,
+      "okay": 0,
+      "poor": -5
+    }
+  },
+  "rent_late_fees": {
+    "days_1_3": 25,
+    "days_4_7": 50,
+    "days_8_plus": 100
+  },
+  "croneslist_fees": {
+    "listing_post": 5,
+    "premium_boost": 15
+  },
+  "financial_goals": {
+    "immediate": "Survive today ($8-10 for food)",
+    "short_term": "Save for broom ($200-300)",
+    "monthly": "Make rent ($700)",
+    "long_term": "Build savings cushion"
+  }
+}

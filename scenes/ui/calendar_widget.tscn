@@ -1,0 +1,53 @@
+[gd_scene load_steps=3 format=3 uid="uid://calendar_widget"]
+
+[ext_resource type="Script" path="res://scripts/ui/calendar_display.gd" id="1"]
+[ext_resource type="Theme" path="res://assets/ui/witch_theme.tres" id="2"]
+
+[node name="CalendarWidget" type="PanelContainer"]
+custom_minimum_size = Vector2(200, 250)
+script = ExtResource("1")
+theme = ExtResource("2")
+
+[node name="VBox" type="VBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="DateLabel" type="Label" parent="VBox"]
+layout_mode = 2
+text = "Friday, March 1st"
+theme_type_variation = "HeaderLabel"
+horizontal_alignment = 1
+
+[node name="HolidayLabel" type="Label" parent="VBox"]
+visible = false
+layout_mode = 2
+text = "🎊 LUNAR NEW YEAR! 🎊"
+theme_type_variation = "HolidayLabel"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="VBox"]
+layout_mode = 2
+
+[node name="MoonLabel" type="Label" parent="VBox"]
+layout_mode = 2
+text = "🌒 Waxing Crescent"
+theme_type_variation = "SmallLabel"
+horizontal_alignment = 1
+
+[node name="RentLabel" type="Label" parent="VBox"]
+layout_mode = 2
+text = "Rent in 30 days"
+theme_type_variation = "SmallLabel"
+horizontal_alignment = 1
+
+[node name="HSeparator2" type="HSeparator" parent="VBox"]
+layout_mode = 2
+
+[node name="CalendarView" type="RichTextLabel" parent="VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_fonts/mono_font = preload("res://assets/fonts/mono_font.tres")
+theme_override_font_sizes/mono_font_size = 10
+bbcode_enabled = true
+text = "Calendar view here"
+fit_content = true

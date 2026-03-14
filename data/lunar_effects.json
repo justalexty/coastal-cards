@@ -1,0 +1,177 @@
+{
+  "moon_phases": {
+    "new_moon": {
+      "name": "New Moon",
+      "symbol": "🌑",
+      "energy": "beginnings",
+      "effects": {
+        "new_client_bonus": 0.25,
+        "intention_setting": true,
+        "shadow_work": true,
+        "energy_cost_reduction": 0.1
+      },
+      "reading_bonuses": {
+        "fresh_start": 1.5,
+        "hidden_potential": 1.3,
+        "release_patterns": 1.2
+      },
+      "client_moods": ["hopeful", "ready_for_change", "contemplative"],
+      "special_events": {
+        "rare_client": "A mysterious figure seeks a shadow reading.",
+        "intuition_boost": "Your third eye feels especially open.",
+        "cleansing_rain": "Rain washes the city clean for new beginnings."
+      }
+    },
+    "waxing_crescent": {
+      "name": "Waxing Crescent",
+      "symbol": "🌒",
+      "energy": "growth",
+      "effects": {
+        "motivation_boost": 0.15,
+        "planning_clarity": true,
+        "small_steps_bonus": true
+      },
+      "reading_bonuses": {
+        "goal_setting": 1.2,
+        "first_steps": 1.1
+      }
+    },
+    "first_quarter": {
+      "name": "First Quarter",
+      "symbol": "🌓",
+      "energy": "decisions",
+      "effects": {
+        "decision_clarity": 0.2,
+        "obstacle_insight": true
+      },
+      "reading_bonuses": {
+        "crossroads": 1.3,
+        "challenges": 1.2
+      }
+    },
+    "waxing_gibbous": {
+      "name": "Waxing Gibbous",
+      "symbol": "🌔",
+      "energy": "refinement",
+      "effects": {
+        "persistence_bonus": 0.1,
+        "detail_awareness": true
+      },
+      "reading_bonuses": {
+        "fine_tuning": 1.1,
+        "patience": 1.1
+      }
+    },
+    "full_moon": {
+      "name": "Full Moon",
+      "symbol": "🌕",
+      "energy": "culmination",
+      "effects": {
+        "power_surge": true,
+        "emotional_intensity": 1.5,
+        "divination_bonus": 0.3,
+        "exhaustion_risk": 0.2
+      },
+      "reading_bonuses": {
+        "revelation": 1.5,
+        "emotional_clarity": 1.4,
+        "manifestation": 1.3
+      },
+      "client_moods": ["emotional", "seeking_answers", "intense", "grateful"],
+      "special_events": {
+        "power_overflow": "Your readings are eerily accurate tonight.",
+        "emotional_client": "A client breaks down crying during their reading.",
+        "night_market": "The Full Moon Night Market has special offerings.",
+        "werewolf_client": "A peculiar client seems... restless."
+      }
+    },
+    "waning_gibbous": {
+      "name": "Waning Gibbous",
+      "symbol": "🌖",
+      "energy": "gratitude",
+      "effects": {
+        "wisdom_sharing": true,
+        "grateful_clients": 0.2
+      },
+      "reading_bonuses": {
+        "giving_thanks": 1.2,
+        "sharing_wisdom": 1.1
+      }
+    },
+    "last_quarter": {
+      "name": "Last Quarter",
+      "symbol": "🌗",
+      "energy": "release",
+      "effects": {
+        "letting_go": true,
+        "forgiveness_work": 0.15
+      },
+      "reading_bonuses": {
+        "release": 1.3,
+        "forgiveness": 1.2
+      }
+    },
+    "waning_crescent": {
+      "name": "Waning Crescent",
+      "symbol": "🌘",
+      "energy": "rest",
+      "effects": {
+        "rest_bonus": 0.2,
+        "dream_clarity": true,
+        "preparation_time": true
+      },
+      "reading_bonuses": {
+        "rest_needed": 1.1,
+        "dream_work": 1.2
+      }
+    }
+  },
+  "special_moons": {
+    "blue_moon": {
+      "description": "Second full moon in a calendar month",
+      "rarity": "Once every 2.7 years",
+      "effects": {
+        "rare_opportunity": true,
+        "double_full_moon_power": true,
+        "special_client_guaranteed": true,
+        "croneslist_premium_bonus": 0.5
+      }
+    },
+    "blood_moon": {
+      "description": "Total lunar eclipse",
+      "effects": {
+        "transformation_readings": 2.0,
+        "shadow_work_supreme": true,
+        "exhausting_but_powerful": true
+      }
+    },
+    "super_moon": {
+      "description": "Moon at closest approach to Earth",
+      "effects": {
+        "enhanced_all_effects": 1.5,
+        "tidal_influence": true,
+        "emotional_tsunami": true
+      }
+    }
+  },
+  "moon_rituals": {
+    "new_moon_intention": {
+      "cost": 0,
+      "energy": 10,
+      "effect": "Set intention for the lunar cycle",
+      "bonus": "+5% to related readings this cycle"
+    },
+    "full_moon_charging": {
+      "cost": 0,
+      "energy": 5,
+      "effect": "Charge your tarot deck in moonlight",
+      "bonus": "+10% accuracy for 3 days"
+    },
+    "moon_water": {
+      "cost": 5,
+      "energy": 0,
+      "effect": "Create moon water for cleansing",
+      "bonus": "Cleanse negative energy from difficult readings"
+    }
+  }
+}

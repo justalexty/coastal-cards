@@ -1,0 +1,64 @@
+{
+  "client_reactions": {
+    "first_impression": [
+      "A young witch? Well, {subj} seem{s/} confident enough.",
+      "I hope {subj} know{s/} what {subj} {is/are} doing...",
+      "Something about {obj} feels trustworthy.",
+      "{Poss} table setup looks professional, at least."
+    ],
+    "good_reading": [
+      "{Subj} really understood my situation!",
+      "How did {subj} know that? Amazing!",
+      "I'll definitely recommend {obj} to my friends.",
+      "Worth every penny. {Subj} {has/have} a real gift."
+    ],
+    "bad_reading": [
+      "I don't think {subj} understood my question...",
+      "That was... vague. Is {subj} new at this?",
+      "Maybe {subj} {is/are} having an off day.",
+      "{Subj} seem{s/} distracted. I'll try someone else next time."
+    ]
+  },
+  "permit_officer": {
+    "checking_permit": [
+      "Let me see {poss} vending permit, witch.",
+      "Does {subj} have authorization to set up here?",
+      "{Subj} need{s/} proper documentation for this location.",
+      "I'll need to see {poss} papers before {subj} can continue."
+    ],
+    "no_permit": [
+      "{Subj} can't operate here without a permit!",
+      "I'm afraid {subj}'ll have to pack up and move along.",
+      "No permit, no readings. {Subj} know{s/} the rules.",
+      "Head to City Hall if {subj} want{s/} to get licensed."
+    ]
+  },
+  "witch_network_messages": {
+    "tips": [
+      "Hey new witch! Saw {obj} at the boardwalk. Good choice - tourists don't need permits!",
+      "Warning: Officer Grimsby is checking permits in Market Square today. Hope {subj} {has/have} one!",
+      "Pro tip: Students tip better after exams. {Subj} might want to try the University then.",
+      "If {subj} need{s/} quick cash, the harbor on Friday nights is busy."
+    ],
+    "encouragement": [
+      "Heard {subj} {is/are} doing great! Keep it up!",
+      "Someone mentioned {poss} readings are really accurate. Nice work!",
+      "Rough day? {Subj}'ll get better with practice!",
+      "Remember: even the best readers started where {subj} {is/are} now."
+    ]
+  },
+  "internal_thoughts": {
+    "financial_worry": [
+      "Only {days} days until rent. Can {subj} make it?",
+      "{Subj} really need{s/} that permit, but can {subj} afford it?",
+      "If {subj} skip{s/} lunch, {subj} can afford more supplies...",
+      "One day {subj}'ll have {poss} own shop. One day."
+    ],
+    "broom_longing": [
+      "{Subj} miss{es/} flying. This train is so slow.",
+      "With a new broom, {subj} could reach more locations...",
+      "Walking everywhere is exhausting. {Subj} need{s/} that broom.",
+      "{Poss} feet hurt. Flying was so much better."
+    ]
+  }
+}

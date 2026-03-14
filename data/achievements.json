@@ -1,0 +1,112 @@
+{
+  "achievements": [
+    {
+      "id": "first_reading",
+      "name": "First Steps",
+      "description": "Complete your first tarot reading",
+      "icon": "achievement_first_reading"
+    },
+    {
+      "id": "survived_week",
+      "name": "Still Here",
+      "description": "Survive your first week in the city",
+      "icon": "achievement_week"
+    },
+    {
+      "id": "made_rent",
+      "name": "Responsible Witch",
+      "description": "Pay rent on time",
+      "icon": "achievement_rent"
+    },
+    {
+      "id": "got_broom",
+      "name": "Flying Again!",
+      "description": "Purchase any broom and take to the skies",
+      "icon": "achievement_broom"
+    },
+    {
+      "id": "got_premium_broom",
+      "name": "Living the Dream",
+      "description": "Successfully snag a premium broom on Croneslist",
+      "icon": "achievement_premium"
+    },
+    {
+      "id": "missed_premium_by_one",
+      "name": "One Minute Too Late",
+      "description": "Miss a premium broom by less than 60 seconds",
+      "icon": "achievement_heartbreak"
+    },
+    {
+      "id": "sold_for_rent",
+      "name": "Desperate Measures",
+      "description": "Sell your broom to make rent",
+      "icon": "achievement_sacrifice"
+    },
+    {
+      "id": "sold_premium_for_rent",
+      "name": "The Ultimate Sacrifice",
+      "description": "Sell a PREMIUM broom to make rent",
+      "icon": "achievement_tragedy"
+    },
+    {
+      "id": "broom_flipper",
+      "name": "Buy Low, Sell High",
+      "description": "Sell a broom for profit",
+      "icon": "achievement_merchant"
+    },
+    {
+      "id": "walked_100_days",
+      "name": "Strong Legs",
+      "description": "Go 100 days without a broom (those calves though!)",
+      "icon": "achievement_walking"
+    },
+    {
+      "id": "regular_client",
+      "name": "Building Trust",
+      "description": "Have a client return for a second reading",
+      "icon": "achievement_regular"
+    },
+    {
+      "id": "perfect_reading",
+      "name": "True Sight",
+      "description": "Give a perfectly accurate reading",
+      "icon": "achievement_perfect"
+    },
+    {
+      "id": "all_locations",
+      "name": "City Explorer",
+      "description": "Set up your table in every location",
+      "icon": "achievement_explore"
+    },
+    {
+      "id": "saved_500",
+      "name": "Nest Egg",
+      "description": "Have $500 in savings after paying rent",
+      "icon": "achievement_savings"
+    },
+    {
+      "id": "mastered_major_arcana",
+      "name": "Arcana Master",
+      "description": "Achieve mastery with all 22 Major Arcana cards",
+      "icon": "achievement_mastery"
+    }
+  ],
+  "statistics": {
+    "days_without_broom": 0,
+    "total_distance_walked": 0,
+    "readings_in_rain": 0,
+    "ramen_dinners": 0,
+    "times_almost_evicted": 0,
+    "perfect_readings": 0,
+    "failed_readings": 0,
+    "money_spent_on_food": 0,
+    "tips_earned": 0,
+    "permits_purchased": 0,
+    "brooms_purchased": 0,
+    "brooms_sold": 0,
+    "brooms_missed_by_minute": 0,
+    "premium_brooms_missed": 0,
+    "money_from_broom_sales": 0,
+    "days_after_selling_before_new_broom": 0
+  }
+}

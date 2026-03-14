@@ -1,0 +1,155 @@
+{
+  "broom_catalog": {
+    "budget_tier": {
+      "apprentice_ash": {
+        "retail_price": 300,
+        "description": "Standard training broom made from ash wood. Steady and forgiving.",
+        "flight_speed": "Steady - 25mph cruising",
+        "used_price_range": [180, 240],
+        "aesthetic_issues_when_used": [
+          "Scorch marks from training accidents",
+          "Worn grip tape",
+          "Faded academy logos",
+          "Minor bristle loss"
+        ]
+      },
+      "city_birch": {
+        "retail_price": 300,
+        "description": "Urban-adapted broom with reinforced bristles for city flying.",
+        "flight_speed": "Reliable - 30mph with good maneuverability",
+        "used_price_range": [180, 240],
+        "aesthetic_issues_when_used": [
+          "Pollution stains",
+          "Duct-taped handle joints",
+          "Missing bristle chunks",
+          "Graffiti tags"
+        ]
+      },
+      "student_maple": {
+        "retail_price": 250,
+        "description": "Basic student model. Gets you from A to B.",
+        "flight_speed": "Basic - 20mph, stable",
+        "used_price_range": [150, 200],
+        "aesthetic_issues_when_used": [
+          "Carved initials everywhere",
+          "Sticker residue",
+          "Bent from dorm storage",
+          "Smells like ramen"
+        ]
+      },
+      "old_hazel": {
+        "retail_price": 250,
+        "description": "Traditional witch's broom. Hazel enhances intuition.",
+        "flight_speed": "Slow but wise - 15mph, great at night",
+        "used_price_range": [150, 200],
+        "aesthetic_issues_when_used": [
+          "Looks ancient (it is)",
+          "Creaks constantly",
+          "Shedding bristles",
+          "Possible haunting"
+        ]
+      }
+    },
+    "mid_tier": {
+      "coastal_driftwood": {
+        "retail_price": 450,
+        "description": "Crafted from sea-weathered wood. Excels in ocean breezes.",
+        "flight_speed": "Swift in sea air - 40mph coastal, 25mph inland",
+        "used_price_range": [270, 360],
+        "aesthetic_issues_when_used": [
+          "Salt crystallization",
+          "Barnacle remnants",
+          "Bleached by sun",
+          "Smells like low tide"
+        ]
+      },
+      "urban_oak": {
+        "retail_price": 500,
+        "description": "Sturdy commuter broom. Built for daily use.",
+        "flight_speed": "Consistent - 35mph all conditions",
+        "used_price_range": [300, 400],
+        "aesthetic_issues_when_used": [
+          "Coffee stains",
+          "Briefcase attachment marks",
+          "Rush hour dings",
+          "Parking meter scratches"
+        ]
+      }
+    },
+    "premium_tier": {
+      "twilight_willow": {
+        "retail_price": 1200,
+        "description": "Graceful flight, perfect balance. Favored by performers.",
+        "flight_speed": "Graceful - 45mph with balletic control",
+        "used_price_range": [600, 840],
+        "aesthetic_issues_when_used": [
+          "Previous owner's show glitter",
+          "Autograph requests carved in handle",
+          "Theatrical wear",
+          "Still gorgeous despite flaws"
+        ]
+      },
+      "moonweave": {
+        "retail_price": 1500,
+        "description": "Woven with moonlit willow. Silent flight, night vision enhancement.",
+        "flight_speed": "Silent - 50mph, invisible to radar",
+        "used_price_range": [750, 1050],
+        "aesthetic_issues_when_used": [
+          "Faint glow can't turn off",
+          "Attracts moths",
+          "Shows fingerprints",
+          "Too beautiful to be discreet"
+        ]
+      },
+      "stormchaser": {
+        "retail_price": 3000,
+        "description": "Racing broom built from lightning-struck oak. Handles any weather. Not for beginners.",
+        "flight_speed": "Lightning fast - 80mph+ in any conditions",
+        "used_price_range": [1500, 2100],
+        "aesthetic_issues_when_used": [
+          "Racing decals",
+          "Speed wobble at 60mph",
+          "Previous owner's modifications",
+          "Cops know this broom"
+        ]
+      }
+    },
+    "exotic_tier": {
+      "aurora_borealis": {
+        "retail_price": 5000,
+        "description": "Crafted under northern lights. Leaves trails of color.",
+        "flight_speed": "Ethereal - 60mph with light trails",
+        "used_price_range": [2500, 3500],
+        "notes": "Rarely appears on Croneslist"
+      },
+      "deep_sea_kelp": {
+        "retail_price": 2200,
+        "description": "Experimental underwater capable broom.",
+        "flight_speed": "Amphibious - 30mph air, 15mph underwater",
+        "used_price_range": [1100, 1540],
+        "notes": "Weird but works"
+      }
+    }
+  },
+  "croneslist_notes": {
+    "posting_frequency": {
+      "budget_tier": "4-5 times daily",
+      "mid_tier": "1-2 times daily", 
+      "premium_tier": "Once per week or less",
+      "exotic_tier": "Once per month if lucky"
+    },
+    "typical_sellers": {
+      "budget": ["BrokeInBrooklyn", "RentDueTomorrow", "StudentDebt4Ever"],
+      "mid": ["UpgradingMom", "MovingMustSell", "DivorceSettlement"],
+      "premium": ["TooManyBrooms", "WonTheLottery", "InheritedBetter"],
+      "exotic": ["EccentricCollector", "MuseumDeaccession", "WhatWasIThinking"]
+    },
+    "listing_duration": {
+      "under_200": "10-40 minutes",
+      "200_500": "5-25 minutes",
+      "500_1000": "3-15 minutes",
+      "1000_plus": "1-8 minutes",
+      "premium_deals": "30 seconds to 3 minutes"
+    }
+  }
+}

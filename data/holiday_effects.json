@@ -1,0 +1,108 @@
+{
+  "lunar_new_year": {
+    "name": "Lunar New Year",
+    "duration_days": 3,
+    "effects": {
+      "reading_accuracy_bonus": 0.2,
+      "tip_multiplier": 1.5,
+      "client_mood_boost": 0.3,
+      "special_clients": ["seeking_fortune", "new_beginnings", "family_matters"],
+      "croneslist_luck": 0.1
+    },
+    "messages": [
+      "The city buzzes with Lunar New Year energy!",
+      "Red lanterns hang from every streetlamp.",
+      "Fireworks echo across the harbor.",
+      "Everyone seems more generous today."
+    ],
+    "special_events": {
+      "free_meal": "A kind stranger buys you dumplings!",
+      "lucky_money": "You find a red envelope with $20!",
+      "extra_clients": "Word spreads about the 'lucky witch' - more clients!"
+    }
+  },
+  "spring_equinox": {
+    "name": "Spring Equinox",
+    "duration_days": 1,
+    "effects": {
+      "energy_regen_bonus": 0.25,
+      "new_client_chance": 0.15,
+      "flower_sales": true
+    },
+    "messages": [
+      "Perfect balance of day and night.",
+      "Fresh growth energy fills the air.",
+      "Flowers bloom in every window box."
+    ]
+  },
+  "summer_solstice": {
+    "name": "Summer Solstice",
+    "duration_days": 1,
+    "effects": {
+      "extended_daylight": true,
+      "energy_max_bonus": 20,
+      "beach_location_unlocked": true
+    },
+    "messages": [
+      "The longest day brings endless possibilities.",
+      "The sun doesn't set until 9 PM!",
+      "Beach readings are especially popular."
+    ]
+  },
+  "autumn_equinox": {
+    "name": "Autumn Equinox",
+    "duration_days": 1,
+    "effects": {
+      "harvest_bonus_tips": 0.1,
+      "cozy_atmosphere": true,
+      "pumpkin_spice_energy": 5
+    },
+    "messages": [
+      "The air turns crisp with autumn magic.",
+      "Harvest season brings grateful clients.",
+      "Your readings feel especially grounded."
+    ]
+  },
+  "winter_solstice": {
+    "name": "Winter Solstice",
+    "duration_days": 1,
+    "effects": {
+      "introspection_bonus": 0.2,
+      "candlelight_ambiance": true,
+      "shorter_work_day": true
+    },
+    "messages": [
+      "The longest night invites deep reflection.",
+      "Candles create the perfect reading atmosphere.",
+      "Clients seek guidance for the year ahead."
+    ]
+  },
+  "samhain": {
+    "name": "Samhain",
+    "duration_days": 1,
+    "effects": {
+      "spirit_communication": true,
+      "death_card_power": 2.0,
+      "veil_thin": true
+    },
+    "messages": [
+      "The veil between worlds grows thin.",
+      "Clients ask about departed loved ones.",
+      "Your intuition feels supernaturally sharp."
+    ]
+  },
+  "beltane": {
+    "name": "Beltane",
+    "duration_days": 1,
+    "effects": {
+      "romance_readings": 2.0,
+      "fertility_questions": true,
+      "flower_crown_bonus": true
+    },
+    "messages": [
+      "Love is in the air!",
+      "Everyone wants relationship readings.",
+      "Flower crowns are trending."
+    ]
+  }
+}

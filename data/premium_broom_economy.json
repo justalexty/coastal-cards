@@ -1,0 +1,44 @@
+{
+  "premium_brooms": {
+    "moonweave": {
+      "retail_price": 1500,
+      "used_price_range": [750, 1050],
+      "description": "Silent flight, enhanced night vision",
+      "aesthetic_note": "Previous owner's pride and joy",
+      "why_selling": "Upgrading to Stormchaser"
+    },
+    "stormchaser": {
+      "retail_price": 3000,
+      "used_price_range": [1500, 2100],
+      "description": "Lightning fast, all-weather champion",
+      "aesthetic_note": "Some racing decals, otherwise pristine",
+      "why_selling": "Moving abroad, can't take it"
+    },
+    "twilight_willow": {
+      "retail_price": 1200,
+      "used_price_range": [600, 840],
+      "description": "Graceful flight, perfect balance",
+      "aesthetic_note": "Lovingly maintained",
+      "why_selling": "Inherited a better one"
+    }
+  },
+  "premium_mechanics": {
+    "spawn_rate": "~2% per day after last premium (max ~14% after a week)",
+    "duration": "3-8 minutes (vs 10-40 for regular)",
+    "notification": "Maximum urgency - glowing compact, special sound",
+    "psychological_impact": "Missing these hurts 10x more than regular brooms"
+  },
+  "player_psychology": {
+    "week_1": "Cool, maybe I'll save for a premium if one appears",
+    "week_2": "Actually, any flying broom would be nice...",
+    "week_3": "OMG A MOONWEAVE FOR $800 *frantically clicking*",
+    "missed_premium": "Devastating. Will remember this forever.",
+    "caught_premium": "Best moment in the game. Worth every penny."
+  },
+  "economic_impact": {
+    "savings_required": "$600-2000 depending on broom",
+    "decision_pressure": "Do I wait for premium or buy ugly one now?",
+    "opportunity_cost": "Save for premium = more days walking",
+    "regret_potential": "What if I never see another premium?"
+  }
+}

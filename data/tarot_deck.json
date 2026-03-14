@@ -1,0 +1,230 @@
+{
+  "major_arcana": [
+    {
+      "number": 0,
+      "name": "The Fool",
+      "keywords": ["beginnings", "innocence", "spontaneity", "free spirit"],
+      "upright_meaning": "New beginnings, having faith in the future, being inexperienced, not knowing what to expect",
+      "reversed_meaning": "Being reckless, taking unnecessary risks, being foolish",
+      "element": "Air",
+      "visual_description": "A young traveler at the edge of a cliff, companion dog, carrying few possessions"
+    },
+    {
+      "number": 1,
+      "name": "The Magician",
+      "keywords": ["willpower", "desire", "creation", "manifestation"],
+      "upright_meaning": "Skill, diplomacy, self-confidence, will, the power to manifest",
+      "reversed_meaning": "Manipulation, poor planning, unused talents",
+      "element": "Air",
+      "visual_description": "Figure with one hand pointing up, one down, tools on table, infinity symbol"
+    },
+    {
+      "number": 2,
+      "name": "The High Priestess",
+      "keywords": ["intuition", "sacred knowledge", "divine feminine", "subconscious"],
+      "upright_meaning": "Intuition, higher powers, mystery, subconscious mind",
+      "reversed_meaning": "Hidden agendas, disconnected from intuition, withdrawal",
+      "element": "Water",
+      "visual_description": "Seated woman between two pillars, moon crown, scrolls of knowledge"
+    },
+    {
+      "number": 3,
+      "name": "The Empress",
+      "keywords": ["femininity", "beauty", "nature", "nurturing"],
+      "upright_meaning": "Fertility, femininity, beauty, nature, abundance",
+      "reversed_meaning": "Creative block, dependence on others, neglecting self",
+      "element": "Earth",
+      "visual_description": "Pregnant woman in garden, crown of stars, Venus symbol"
+    },
+    {
+      "number": 4,
+      "name": "The Emperor",
+      "keywords": ["authority", "structure", "control", "fatherhood"],
+      "upright_meaning": "Authority, father-figure, structure, solid foundation",
+      "reversed_meaning": "Tyranny, rigidity, coldness, domination",
+      "element": "Fire",
+      "visual_description": "Bearded king on throne, ram symbols, holding ankh and orb"
+    },
+    {
+      "number": 5,
+      "name": "The Hierophant",
+      "keywords": ["tradition", "conformity", "morality", "ethics"],
+      "upright_meaning": "Religion, group identification, conformity, tradition, beliefs",
+      "reversed_meaning": "Restriction, challenging the status quo, breaking convention",
+      "element": "Earth",
+      "visual_description": "Religious figure blessing two followers, keys at feet"
+    },
+    {
+      "number": 6,
+      "name": "The Lovers",
+      "keywords": ["love", "harmony", "relationships", "values alignment"],
+      "upright_meaning": "Love, harmony, relationships, values alignment, choices",
+      "reversed_meaning": "Disharmony, imbalance, misalignment of values",
+      "element": "Air",
+      "visual_description": "Naked couple under angel's blessing, tree of knowledge and life"
+    },
+    {
+      "number": 7,
+      "name": "The Chariot",
+      "keywords": ["control", "willpower", "success", "determination"],
+      "upright_meaning": "Control, willpower, success, determination, assertion",
+      "reversed_meaning": "Lack of control, lack of direction, aggression",
+      "element": "Water",
+      "visual_description": "Warrior in chariot pulled by two sphinxes, city behind"
+    },
+    {
+      "number": 8,
+      "name": "Strength",
+      "keywords": ["inner strength", "courage", "patience", "control"],
+      "upright_meaning": "Inner strength, courage, patience, control, compassion",
+      "reversed_meaning": "Weakness, self-doubt, lack of self-discipline",
+      "element": "Fire",
+      "visual_description": "Woman gently closing lion's mouth, infinity symbol above"
+    },
+    {
+      "number": 9,
+      "name": "The Hermit",
+      "keywords": ["soul searching", "introspection", "being alone", "inner guidance"],
+      "upright_meaning": "Soul searching, introspection, being alone, inner guidance",
+      "reversed_meaning": "Isolation, loneliness, withdrawal, lost your way",
+      "element": "Earth",
+      "visual_description": "Robed figure with lantern on mountain peak, staff in hand"
+    },
+    {
+      "number": 10,
+      "name": "Wheel of Fortune",
+      "keywords": ["change", "cycles", "inevitable fate", "luck"],
+      "upright_meaning": "Good luck, karma, life cycles, destiny, a turning point",
+      "reversed_meaning": "Bad luck, lack of control, clinging to control",
+      "element": "Fire",
+      "visual_description": "Large wheel with symbols, sphinx on top, serpent and Anubis"
+    },
+    {
+      "number": 11,
+      "name": "Justice",
+      "keywords": ["justice", "fairness", "truth", "cause and effect"],
+      "upright_meaning": "Justice, fairness, truth, cause and effect, law",
+      "reversed_meaning": "Unfairness, lack of accountability, dishonesty",
+      "element": "Air",
+      "visual_description": "Figure with sword and scales, seated between pillars"
+    },
+    {
+      "number": 12,
+      "name": "The Hanged Man",
+      "keywords": ["surrender", "new perspective", "waiting", "sacrifice"],
+      "upright_meaning": "Suspension, restriction, letting go, sacrifice, new perspective",
+      "reversed_meaning": "Delays, resistance, stalling, indecision",
+      "element": "Water",
+      "visual_description": "Man hanging upside down by one foot, halo around head"
+    },
+    {
+      "number": 13,
+      "name": "Death",
+      "keywords": ["endings", "transformation", "transition", "renewal"],
+      "upright_meaning": "Endings, beginnings, change, transformation, transition",
+      "reversed_meaning": "Resistance to change, unable to move on, fear of change",
+      "element": "Water",
+      "visual_description": "Skeleton in armor on horse, sun rising between towers"
+    },
+    {
+      "number": 14,
+      "name": "Temperance",
+      "keywords": ["balance", "patience", "purpose", "moderation"],
+      "upright_meaning": "Balance, moderation, patience, purpose, meaning",
+      "reversed_meaning": "Imbalance, excess, lack of long-term vision",
+      "element": "Fire",
+      "visual_description": "Angel pouring water between cups, one foot on land and water"
+    },
+    {
+      "number": 15,
+      "name": "The Devil",
+      "keywords": ["bondage", "addiction", "sexuality", "materialism"],
+      "upright_meaning": "Bondage, addiction, sexuality, materialism, shadow self",
+      "reversed_meaning": "Breaking free, power reclaimed, release from bondage",
+      "element": "Earth",
+      "visual_description": "Horned devil above chained couple, inverted pentagram"
+    },
+    {
+      "number": 16,
+      "name": "The Tower",
+      "keywords": ["upheaval", "disaster", "revelation", "awakening"],
+      "upright_meaning": "Disaster, upheaval, sudden change, revelation",
+      "reversed_meaning": "Avoiding disaster, delaying the inevitable, fear of change",
+      "element": "Fire",
+      "visual_description": "Tower struck by lightning, people falling, crown toppling"
+    },
+    {
+      "number": 17,
+      "name": "The Star",
+      "keywords": ["hope", "spirituality", "renewal", "inspiration"],
+      "upright_meaning": "Hope, spirituality, renewal, inspiration, serenity",
+      "reversed_meaning": "Lack of faith, despair, disconnected from spirituality",
+      "element": "Air",
+      "visual_description": "Naked woman pouring water, seven small stars and one large"
+    },
+    {
+      "number": 18,
+      "name": "The Moon",
+      "keywords": ["illusion", "intuition", "uncertainty", "subconscious"],
+      "upright_meaning": "Illusion, fear, anxiety, intuition, subconscious, dreams",
+      "reversed_meaning": "Release of fear, unhappiness, confusion clearing",
+      "element": "Water",
+      "visual_description": "Moon with face, two towers, dog and wolf howling, crayfish"
+    },
+    {
+      "number": 19,
+      "name": "The Sun",
+      "keywords": ["joy", "success", "vitality", "enlightenment"],
+      "upright_meaning": "Joy, success, celebration, positivity, vitality",
+      "reversed_meaning": "Temporary depression, lack of success, sadness",
+      "element": "Fire",
+      "visual_description": "Large sun, child on horse, sunflowers, walled garden"
+    },
+    {
+      "number": 20,
+      "name": "Judgement",
+      "keywords": ["reflection", "reckoning", "awakening", "renewal"],
+      "upright_meaning": "Reflection, reckoning, awakening, inner calling",
+      "reversed_meaning": "Self-doubt, inability to forgive yourself, harsh self-judgment",
+      "element": "Fire",
+      "visual_description": "Angel blowing trumpet, people rising from graves"
+    },
+    {
+      "number": 21,
+      "name": "The World",
+      "keywords": ["completion", "accomplishment", "travel", "unity"],
+      "upright_meaning": "Completion, accomplishment, travel, fulfillment, unity",
+      "reversed_meaning": "Lack of closure, lack of achievement, delays",
+      "element": "Earth",
+      "visual_description": "Dancing figure in laurel wreath, four creatures in corners"
+    }
+  ],
+  "suits": {
+    "wands": {
+      "element": "Fire",
+      "associations": ["creativity", "action", "passion", "inspiration"],
+      "ace": {
+        "name": "Ace of Wands",
+        "upright": "Inspiration, new opportunities, growth, potential",
+        "reversed": "Emerging ideas, lack of direction, distractions, delays"
+      },
+      "two": {
+        "name": "Two of Wands",
+        "upright": "Planning, making decisions, leaving comfort zone",
+        "reversed": "Fear of change, lack of planning, bad planning"
+      }
+    },
+    "cups": {
+      "element": "Water",
+      "associations": ["emotions", "relationships", "intuition", "spirituality"]
+    },
+    "swords": {
+      "element": "Air",
+      "associations": ["thoughts", "communication", "challenges", "conflict"]
+    },
+    "pentacles": {
+      "element": "Earth",
+      "associations": ["material matters", "career", "money", "physical world"]
+    }
+  }
+}

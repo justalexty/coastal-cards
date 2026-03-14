@@ -1,0 +1,52 @@
+{
+  "broom_types": {
+    "apprentice_ash": {
+      "description": "Standard training broom made from ash wood. Steady and forgiving for new flyers.",
+      "wood": "Ash",
+      "origin": "Witch academies",
+      "flight_characteristics": "Stable, good for beginners, handles light rain"
+    },
+    "city_birch": {
+      "description": "Urban-adapted broom with reinforced bristles for city flying. Popular with delivery witches.",
+      "wood": "Silver birch",
+      "origin": "Metropolitan workshops",
+      "flight_characteristics": "Maneuverable in tight spaces, pollution-resistant finish"
+    },
+    "coastal_driftwood": {
+      "description": "Crafted from sea-weathered wood. Naturally salt-resistant and swift in ocean breezes.",
+      "wood": "Various driftwood",
+      "origin": "Seaside covens",
+      "flight_characteristics": "Excellent in coastal winds, slightly unpredictable inland"
+    },
+    "old_hazel": {
+      "description": "Traditional witch's broom. Hazel wood is said to enhance intuition during flight.",
+      "wood": "Hazel",
+      "origin": "Rural traditions",
+      "flight_characteristics": "Slow but wise, excellent for night flying"
+    },
+    "moonweave": {
+      "description": "Woven with moonlit willow and enchanted with starlight. A prestige broom.",
+      "wood": "White willow",
+      "origin": "Master crafters",
+      "flight_characteristics": "Silent flight, enhanced night vision for rider"
+    },
+    "stormchaser": {
+      "description": "Racing broom built for speed and weather resistance. Not for the faint of heart.",
+      "wood": "Lightning-struck oak",
+      "origin": "Competitive flying circuits",
+      "flight_characteristics": "Extreme speed, handles any weather, requires experienced rider"
+    }
+  },
+  "broom_care": {
+    "maintenance": "Brooms require monthly oiling and bristle grooming",
+    "storage": "Keep in dry place, away from iron",
+    "lifespan": "Well-maintained broom can fly for 20-30 years",
+    "registration": "All flying brooms must be registered with local Witches' Transit Authority"
+  },
+  "cultural_notes": {
+    "tradition": "A witch's first broom is often a gift at graduation or coming-of-age",
+    "superstition": "Never lend your broom during a full moon",
+    "etiquette": "Right of way goes to the witch flying uphill",
+    "modern": "Electric assist brooms exist but are considered tacky by traditionalists"
+  }
+}
