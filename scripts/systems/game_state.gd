@@ -145,6 +145,32 @@ func advance_to_morning():
 	advance_day()
 	energy = max_energy
 
+func has_save_game() -> bool:
+	# Check if save file exists
+	return FileAccess.file_exists("user://savegame.dat")
+
+func save_game():
+	var save_file = FileAccess.open("user://savegame.dat", FileAccess.WRITE)
+	if save_file:
+		var save_data = {
+			"money": current_money,
+			"energy": energy,
+			"reputation": reputation,
+			"day": Calendar.get_current_date_info() if Calendar else {}
+		}
+		save_file.store_string(JSON.stringify(save_data))
+		save_file.close()
+
+func load_game():
+	if FileAccess.file_exists("user://savegame.dat"):
+		var save_file = FileAccess.open("user://savegame.dat", FileAccess.READ)
+		var save_data = JSON.parse_string(save_file.get_as_text())
+		save_file.close()
+		
+		current_money = save_data.get("money", 25)
+		energy = save_data.get("energy", 100)
+		reputation = save_data.get("reputation", 0)
+
 func _trigger_daily_events():
 	var events = []
 	
