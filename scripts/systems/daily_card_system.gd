@@ -53,7 +53,7 @@ var card_day_effects = {
 	"Nine of Swords": {"awareness": 0.20, "insight": 0.15, "mood": "alert"},
 	
 	"Ace of Pentacles": {"tips": 0.25, "new_clients": 0.10, "mood": "prosperous"},
-	"Four of Pentacles": {"tips": -0.10, "savings": 0.20, "mood": "conservative"},
+	"Four of Pentacles": {"security": 0.15, "savings": 0.20, "mood": "grounded"},
 	"Nine of Pentacles": {"tips": 0.15, "energy": 10, "mood": "luxurious"},
 	"Ten of Pentacles": {"repeat_clients": 0.20, "tips": 0.10, "mood": "established"}
 }
