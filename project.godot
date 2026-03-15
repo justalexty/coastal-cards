@@ -14,6 +14,7 @@ config/icon="res://icon.svg"
 
 GameState="*res://scripts/systems/game_state.gd"
 Calendar="*res://scripts/systems/calendar_system.gd"
+DailyCardSystem="*res://scripts/systems/daily_card_system.gd"
 CroneslistTimer="*res://scripts/systems/croneslist_timer.gd"
 AudioManager="*res://scripts/systems/audio_manager.gd"
 PronounManager="*res://scripts/systems/pronoun_manager.gd"

@@ -40,9 +40,15 @@ var current_hour: int = 9  # 24-hour clock
 var current_minute: int = 0  # 0-59
 var energy: int = 100
 var max_energy: int = 100
+var current_mood: String = "neutral"  # Set by daily card
 
 # Calendar reference (day tracking moved to CalendarSystem)
 var calendar: CalendarSystem
+
+# Daily card system
+var show_daily_card_on_wake: bool = true
+var skipped_daily_draw: bool = false
+var tarot_journal: Array = []  # Stores daily card draws and interpretations
 
 # Inventory
 var inventory: Array = []
@@ -127,6 +133,9 @@ func advance_day():
 	
 	# Daily events
 	_trigger_daily_events()
+	
+	# Show daily card scene for new day
+	show_daily_card_on_wake = true
 
 func advance_to_morning():
 	current_hour = 7
