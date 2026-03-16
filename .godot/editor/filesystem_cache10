@@ -1,10 +1,11 @@
 63f7b34db8d8cdea90c76aacccf841ec
-::res://::1773687599
+::res://::1773687644
 AGENT_CONTEXT.md::TextFile::-1::1773624310::0::1::::<><><>0<>0<><>::
 demo_instructions.md::TextFile::-1::1773588283::0::1::::<><><>0<>0<><>::
 DESIGN.md::TextFile::-1::1773584505::0::1::::<><><>0<>0<><>::
 export_presets.cfg::TextFile::-1::1773588608::0::1::::<><><>0<>0<><>::
 icon.svg::CompressedTexture2D::890356994167333207::1773687599::1773687606::1::::<><><>0<>0<>5bff6c821f1c6164f838e3f1bbfbe8c4<>res://.godot/imported/icon.svg-218a8f2b3041327d8a5756f3a245f83b.ctex::
+ITCH_UPLOAD_GUIDE.md::TextFile::-1::1773687644::0::1::::<><><>0<>0<><>::
 README.md::TextFile::-1::1773584505::0::1::::<><><>0<>0<><>::
 web_hosting_guide.md::TextFile::-1::1773588886::0::1::::<><><>0<>0<><>::
 ::res://assets/::1773588228
@@ -71,7 +72,7 @@ financial_tracker.gd::GDScript::2312887101575553738::1773584505::0::1::::Financi
 listing_timer.gd::GDScript::2672218083648548260::1773584505::0::1::::<>PanelContainer<><>0<>0<><>::
 main_menu.gd::GDScript::5968703780670241323::1773588123::0::1::::<>Control<><>0<>0<><>::
 missed_broom_popup.gd::GDScript::5989271492640725739::1773584505::0::1::::<>AcceptDialog<><>0<>0<><>::
-::res://web_export/::1773687583
-index.apple-touch-icon.png::CompressedTexture2D::6650937333401240715::1773687583::1773687606::1::::<><><>0<>0<>de21df67954a961e5b9fd8fbec92ca83<>res://.godot/imported/index.apple-touch-icon.png-4d27ec496bd7ecf4584e814d5ed34e23.ctex::
-index.icon.png::CompressedTexture2D::5253699713518036729::1773687583::1773687606::1::::<><><>0<>0<>ab203cb2903b8c4c1d08fa96487639b5<>res://.godot/imported/index.icon.png-df48615e124f35601a0d15938b6e60ae.ctex::
-index.png::CompressedTexture2D::1771886804554807081::1773687583::1773687606::1::::<><><>0<>0<>d34bceb2706eb1cd8169711ca572d54b<>res://.godot/imported/index.png-3755de3ad034557d17ad1a4f6e0616c2.ctex::
+::res://web_export/::1773687606
+index.apple-touch-icon.png::CompressedTexture2D::6650937333401240715::1773687606::1773687741::1::::<><><>0<>0<>de21df67954a961e5b9fd8fbec92ca83<>res://.godot/imported/index.apple-touch-icon.png-4d27ec496bd7ecf4584e814d5ed34e23.ctex::
+index.icon.png::CompressedTexture2D::5253699713518036729::1773687606::1773687741::1::::<><><>0<>0<>ab203cb2903b8c4c1d08fa96487639b5<>res://.godot/imported/index.icon.png-df48615e124f35601a0d15938b6e60ae.ctex::
+index.png::CompressedTexture2D::1771886804554807081::1773687606::1773687606::1::::<><><>0<>0<>d34bceb2706eb1cd8169711ca572d54b<>res://.godot/imported/index.png-3755de3ad034557d17ad1a4f6e0616c2.ctex::
