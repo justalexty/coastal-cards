@@ -21,6 +21,7 @@ CompactMirror="*res://scripts/systems/compact_mirror_stub.gd"
 CroneslistTimer="*res://scripts/systems/croneslist_timer.gd"
 AudioManager="*res://scripts/systems/audio_manager.gd"
 PronounManager="*res://scripts/systems/pronoun_manager.gd"
+CharacterCustomization="*res://scripts/systems/character_customization.gd"
 
 [display]
 

@@ -1,0 +1,272 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/compact_mirror_character.gd" id="1_mirror"]
+[ext_resource type="Theme" path="res://assets/ui/default_theme.tres" id="2_theme"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1"]
+bg_color = Color(0.9, 0.85, 0.7, 0.95)
+border_width_left = 10
+border_width_top = 10
+border_width_right = 10
+border_width_bottom = 10
+border_color = Color(0.7, 0.6, 0.4, 1)
+corner_radius_top_left = 150
+corner_radius_top_right = 150
+corner_radius_bottom_right = 150
+corner_radius_bottom_left = 150
+shadow_color = Color(0, 0, 0, 0.4)
+shadow_size = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_2"]
+bg_color = Color(0.7, 0.8, 0.9, 0.3)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.9, 0.9, 1, 0.5)
+corner_radius_top_left = 140
+corner_radius_top_right = 140
+corner_radius_bottom_right = 140
+corner_radius_bottom_left = 140
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_3"]
+bg_color = Color(0.95, 0.9, 0.85, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.6, 0.5, 0.4, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_1"]
+viewport_path = NodePath("CompactMirror/MirrorReflection/CharacterViewport")
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4"]
+bg_color = Color(1, 1, 1, 0.1)
+
+[node name="CharacterCustomization" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1_mirror")
+
+[node name="Background" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0, 0, 0, 0.7)
+
+[node name="CompactMirror" type="Panel" parent="."]
+custom_minimum_size = Vector2(600, 600)
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -300.0
+offset_right = 300.0
+offset_bottom = 300.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_1")
+
+[node name="MirrorReflection" type="Panel" parent="CompactMirror"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -280.0
+offset_top = -280.0
+offset_right = 280.0
+offset_bottom = 280.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_2")
+
+[node name="CharacterViewport" type="SubViewport" parent="CompactMirror/MirrorReflection"]
+size = Vector2(560, 560)
+render_target_update_mode = 4
+
+[node name="CharacterPreview" type="Node2D" parent="CompactMirror/MirrorReflection/CharacterViewport"]
+position = Vector2(280, 280)
+
+[node name="PreviewDisplay" type="TextureRect" parent="CompactMirror/MirrorReflection"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+texture = SubResource("ViewportTexture_1")
+
+[node name="CustomizationPanel" type="Panel" parent="."]
+custom_minimum_size = Vector2(400, 500)
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -200.0
+offset_top = -520.0
+offset_right = 200.0
+offset_bottom = -20.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_3")
+
+[node name="Title" type="Label" parent="CustomizationPanel"]
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -100.0
+offset_top = 20.0
+offset_right = 100.0
+offset_bottom = 50.0
+text = "Enchanted Reflection"
+theme_override_font_sizes/font_size = 24
+horizontal_alignment = 1
+
+[node name="OptionsContainer" type="VBoxContainer" parent="CustomizationPanel"]
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -180.0
+offset_top = 70.0
+offset_right = 180.0
+offset_bottom = 420.0
+theme_override_constants/separation = 15
+
+[node name="NameSection" type="HBoxContainer" parent="CustomizationPanel/OptionsContainer"]
+layout_mode = 2
+
+[node name="NameLabel" type="Label" parent="CustomizationPanel/OptionsContainer/NameSection"]
+custom_minimum_size = Vector2(100, 0)
+text = "Name:"
+
+[node name="NameInput" type="LineEdit" parent="CustomizationPanel/OptionsContainer/NameSection"]
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "Your witch name..."
+
+[node name="PronounSection" type="HBoxContainer" parent="CustomizationPanel/OptionsContainer"]
+layout_mode = 2
+
+[node name="PronounLabel" type="Label" parent="CustomizationPanel/OptionsContainer/PronounSection"]
+custom_minimum_size = Vector2(100, 0)
+text = "Pronouns:"
+
+[node name="PronounSelector" type="OptionButton" parent="CustomizationPanel/OptionsContainer/PronounSection"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Separator1" type="HSeparator" parent="CustomizationPanel/OptionsContainer"]
+layout_mode = 2
+theme_override_styles/separator = SubResource("StyleBoxFlat_4")
+
+[node name="BodySection" type="HBoxContainer" parent="CustomizationPanel/OptionsContainer"]
+layout_mode = 2
+
+[node name="BodyLabel" type="Label" parent="CustomizationPanel/OptionsContainer/BodySection"]
+custom_minimum_size = Vector2(100, 0)
+text = "Body Type:"
+
+[node name="PrevButton" type="Button" parent="CustomizationPanel/OptionsContainer/BodySection"]
+custom_minimum_size = Vector2(30, 30)
+text = "<"
+
+[node name="BodyTypeLabel" type="Label" parent="CustomizationPanel/OptionsContainer/BodySection"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Androgynous"
+horizontal_alignment = 1
+
+[node name="NextButton" type="Button" parent="CustomizationPanel/OptionsContainer/BodySection"]
+custom_minimum_size = Vector2(30, 30)
+text = ">"
+
+[node name="SkinSection" type="HBoxContainer" parent="CustomizationPanel/OptionsContainer"]
+layout_mode = 2
+
+[node name="SkinLabel" type="Label" parent="CustomizationPanel/OptionsContainer/SkinSection"]
+custom_minimum_size = Vector2(100, 0)
+text = "Skin Tone:"
+
+[node name="PrevButton" type="Button" parent="CustomizationPanel/OptionsContainer/SkinSection"]
+custom_minimum_size = Vector2(30, 30)
+text = "<"
+
+[node name="ColorPreview" type="ColorRect" parent="CustomizationPanel/OptionsContainer/SkinSection"]
+custom_minimum_size = Vector2(60, 30)
+layout_mode = 2
+size_flags_horizontal = 3
+color = Color(0.8, 0.7, 0.6, 1)
+
+[node name="NextButton" type="Button" parent="CustomizationPanel/OptionsContainer/SkinSection"]
+custom_minimum_size = Vector2(30, 30)
+text = ">"
+
+[node name="HairSection" type="VBoxContainer" parent="CustomizationPanel/OptionsContainer"]
+layout_mode = 2
+
+[node name="StyleContainer" type="HBoxContainer" parent="CustomizationPanel/OptionsContainer/HairSection"]
+layout_mode = 2
+
+[node name="HairLabel" type="Label" parent="CustomizationPanel/OptionsContainer/HairSection/StyleContainer"]
+custom_minimum_size = Vector2(100, 0)
+text = "Hair Style:"
+
+[node name="StylePrevButton" type="Button" parent="CustomizationPanel/OptionsContainer/HairSection/StyleContainer"]
+custom_minimum_size = Vector2(30, 30)
+text = "<"
+
+[node name="StyleLabel" type="Label" parent="CustomizationPanel/OptionsContainer/HairSection/StyleContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Bob"
+horizontal_alignment = 1
+
+[node name="StyleNextButton" type="Button" parent="CustomizationPanel/OptionsContainer/HairSection/StyleContainer"]
+custom_minimum_size = Vector2(30, 30)
+text = ">"
+
+[node name="ColorContainer" type="HBoxContainer" parent="CustomizationPanel/OptionsContainer/HairSection"]
+layout_mode = 2
+
+[node name="ColorLabel" type="Label" parent="CustomizationPanel/OptionsContainer/HairSection/ColorContainer"]
+custom_minimum_size = Vector2(100, 0)
+text = "Hair Color:"
+
+[node name="ColorPrevButton" type="Button" parent="CustomizationPanel/OptionsContainer/HairSection/ColorContainer"]
+custom_minimum_size = Vector2(30, 30)
+text = "<"
+
+[node name="ColorPreview" type="ColorRect" parent="CustomizationPanel/OptionsContainer/HairSection/ColorContainer"]
+custom_minimum_size = Vector2(60, 30)
+layout_mode = 2
+size_flags_horizontal = 3
+color = Color(0.2, 0.1, 0, 1)
+
+[node name="ColorNextButton" type="Button" parent="CustomizationPanel/OptionsContainer/HairSection/ColorContainer"]
+custom_minimum_size = Vector2(30, 30)
+text = ">"
+
+[node name="OutfitSection" type="HBoxContainer" parent="CustomizationPanel/OptionsContainer"]
+layout_mode = 2
+
+[node name="OutfitLabel" type="Label" parent="CustomizationPanel/OptionsContainer/OutfitSection"]
+custom_minimum_size = Vector2(100, 0)
+text = "Outfit:"
+
+[node name="PrevButton" type="Button" parent="CustomizationPanel/OptionsContainer/OutfitSection"]
+custom_minimum_size = Vector2(30, 30)
+text = "<"
+
+[node name="OutfitLabel" type="Label" parent="CustomizationPanel/OptionsContainer/OutfitSection"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Apprentice Robes"
+horizontal_alignment = 1
+
+[node name="NextButton" type="Button" parent="CustomizationPanel/OptionsContainer/OutfitSection"]
+custom_minimum_size = Vector2(30, 30)
+text = ">"
+
+[node name="SaveButton" type="Button" parent="CustomizationPanel"]
+custom_minimum_size = Vector2(200, 50)
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -100.0
+offset_top = -70.0
+offset_right = 100.0
+offset_bottom = -20.0
+text = "Close Mirror"
