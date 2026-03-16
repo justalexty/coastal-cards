@@ -1,7 +1,7 @@
 extends Node
 
 # Handles pronoun usage throughout the game
-class_name PronounManager
+# class_name PronounManager
 
 static var player_pronouns: Dictionary = {
 	"subject": "they",

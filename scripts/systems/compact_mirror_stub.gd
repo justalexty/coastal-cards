@@ -2,10 +2,13 @@ extends Node
 
 # Stub for CompactMirror system - just for demo
 
-class_name CompactMirror
+# class_name CompactMirror
 
 static func add_message(sender: String, message: String):
 	print("[" + sender + "]: " + message)
+
+static func start_urgent_glow():
+	print("[CompactMirror] URGENT GLOW ACTIVATED!")
 
 # Singleton
 func _init():

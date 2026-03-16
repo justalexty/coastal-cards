@@ -1,7 +1,7 @@
 extends Node
 
 # Daily Card Draw System - Personal morning ritual
-class_name DailyCardSystem
+# class_name DailyCardSystem
 
 signal card_drawn(card_data)
 signal daily_effect_applied(effect_type, modifier)

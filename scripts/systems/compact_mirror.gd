@@ -3,7 +3,7 @@ extends Control
 # Magic Compact Mirror System
 # Handles character creation, witch messages, scrying, and save functionality
 
-class_name CompactMirror
+# class_name CompactMirror
 
 signal character_created(character_data)
 signal message_received(sender, message)

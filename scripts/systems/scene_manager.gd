@@ -2,7 +2,7 @@ extends Node
 
 # Simple scene manager for transitions
 
-class_name SceneManager
+# class_name SceneManager
 
 func change_scene(path: String):
 	get_tree().change_scene_to_file(path)

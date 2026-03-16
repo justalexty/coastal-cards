@@ -1,7 +1,7 @@
 extends Node
 
 # Tarot Deck System - Manages the 78 card deck
-class_name TarotDeck
+# class_name TarotDeck
 
 var major_arcana = []
 var minor_arcana = []

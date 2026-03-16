@@ -1,0 +1,5 @@
+<svg width="128" height="128" xmlns="http://www.w3.org/2000/svg">
+  <rect width="128" height="128" fill="#1a1a2e"/>
+  <text x="64" y="70" text-anchor="middle" font-size="48" fill="#f39c12">🔮</text>
+  <text x="64" y="100" text-anchor="middle" font-size="16" fill="#ecf0f1">CWT</text>
+</svg>

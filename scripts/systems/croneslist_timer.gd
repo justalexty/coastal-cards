@@ -4,7 +4,7 @@ extends Node
 # Brooms appear ~6 times per day at random times
 # Each listing lasts 10-40 minutes before being "sold"
 
-class_name CroneslistTimer
+# class_name CroneslistTimer
 
 signal broom_posted(listing)
 signal broom_sold(listing)

@@ -149,17 +149,6 @@ func has_save_game() -> bool:
 	# Check if save file exists
 	return FileAccess.file_exists("user://savegame.dat")
 
-func save_game():
-	var save_file = FileAccess.open("user://savegame.dat", FileAccess.WRITE)
-	if save_file:
-		var save_data = {
-			"money": current_money,
-			"energy": energy,
-			"reputation": reputation,
-			"day": Calendar.get_current_date_info() if Calendar else {}
-		}
-		save_file.store_string(JSON.stringify(save_data))
-		save_file.close()
 
 func load_game():
 	if FileAccess.file_exists("user://savegame.dat"):
