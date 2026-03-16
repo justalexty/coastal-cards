@@ -47,8 +47,11 @@ A broke witch trying to make $700 monthly rent by reading tarot cards in an expe
 - Notifications optional and OFF by default
 - Location: `scripts/systems/croneslist_timer.gd`
 
-## Current Demo State
-- Main menu → Daily card draw → Studio apartment
+## Current Demo State (v3 - Train Arrival Update)
+- Main menu → Train arrival scene → Compact mirror character creation → Train station → Daily card → Studio apartment
+- Train arrival has 5 dialogue sequences about arriving broke
+- Character creation uses magical compact mirror UI (name + pronouns)
+- Train station is first explorable location (walk left to exit)
 - Basic movement (WASD) and interaction (E)
 - Calendar widget shows date/moon/rent countdown
 - Can run with `godot project.godot` and press F5
