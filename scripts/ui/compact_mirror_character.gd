@@ -27,12 +27,11 @@ var pronoun_options = [
 
 var body_type_names = ["Feminine", "Androgynous", "Masculine"]
 var hair_style_names = [
-	"Bob", "Long Straight", "Ponytail", "Braids", "Pixie Cut", 
-	"Wavy", "Curly", "Messy", "Twin Tails", "Bun"
+	"Bob Cut", "Dapper Style"
 ]
 var outfit_names = [
-	"Apprentice Robes", "Casual Witch", "Street Fortune Teller", 
-	"Professional Reader", "Mystical Sage"
+	"Basic Underwear", "Farmer Outfit", "Professional Attire", 
+	"Casual Boxer Style"
 ]
 
 func _ready():

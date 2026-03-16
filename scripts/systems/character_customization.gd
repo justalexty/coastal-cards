@@ -68,16 +68,9 @@ const LAYER_ORDER = [
 ]
 
 func create_character_sprite(character_data: Dictionary) -> Node2D:
-	# Create a simple pixel art witch!
-	var character_node = Node2D.new()
-	
-	var sprite = Sprite2D.new()
-	var PixelGen = preload("res://scripts/systems/simple_pixel_sprite_generator.gd")
-	sprite.texture = PixelGen.generate_witch_sprite(character_data)
-	sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST # Keep pixels sharp!
-	
-	character_node.add_child(sprite)
-	return character_node
+	# Use REAL Seliel sprites with proper layering!
+	var SelielHandler = preload("res://scripts/systems/seliel_sprite_handler.gd")
+	return SelielHandler.create_layered_character(character_data)
 	
 	# Original layered sprite code (for when we have assets):
 	#var character_node = Node2D.new()
