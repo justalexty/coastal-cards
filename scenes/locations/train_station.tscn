@@ -1,0 +1,114 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/scenes/train_station.gd" id="1_station"]
+
+[sub_resource type="Gradient" id="Gradient_1"]
+offsets = PackedFloat32Array(0, 0.3, 0.7, 1)
+colors = PackedColorArray(0.5, 0.7, 0.9, 1, 0.6, 0.75, 0.85, 1, 0.4, 0.5, 0.7, 1, 0.3, 0.4, 0.6, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_1"]
+gradient = SubResource("Gradient_1")
+fill_from = Vector2(0.5, 0)
+fill_to = Vector2(0.5, 1)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
+size = Vector2(100, 100)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_2"]
+size = Vector2(960, 50)
+
+[node name="TrainStation" type="Node2D"]
+script = ExtResource("1_station")
+
+[node name="Sky" type="TextureRect" parent="."]
+offset_right = 960.0
+offset_bottom = 540.0
+texture = SubResource("GradientTexture2D_1")
+
+[node name="Platform" type="StaticBody2D" parent="."]
+
+[node name="PlatformShape" type="CollisionShape2D" parent="Platform"]
+position = Vector2(480, 450)
+shape = SubResource("RectangleShape2D_2")
+
+[node name="PlatformVisual" type="ColorRect" parent="Platform"]
+offset_top = 425.0
+offset_right = 960.0
+offset_bottom = 475.0
+color = Color(0.4, 0.4, 0.4, 1)
+
+[node name="StationBuilding" type="ColorRect" parent="."]
+offset_left = 600.0
+offset_top = 200.0
+offset_right = 900.0
+offset_bottom = 425.0
+color = Color(0.6, 0.5, 0.4, 1)
+
+[node name="StationSign" type="ColorRect" parent="StationBuilding"]
+offset_left = 50.0
+offset_top = 30.0
+offset_right = 250.0
+offset_bottom = 80.0
+color = Color(0.2, 0.3, 0.5, 1)
+
+[node name="SignText" type="Label" parent="StationBuilding/StationSign"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -60.0
+offset_top = -15.0
+offset_right = 60.0
+offset_bottom = 15.0
+text = "SEAVALE STATION"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Player" type="CharacterBody2D" parent="."]
+position = Vector2(200, 380)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Player"]
+shape = SubResource("RectangleShape2D_1")
+
+[node name="PlayerVisual" type="ColorRect" parent="Player"]
+offset_left = -30.0
+offset_top = -60.0
+offset_right = 30.0
+offset_bottom = 40.0
+color = Color(0.4, 0.2, 0.6, 1)
+
+[node name="Hat" type="ColorRect" parent="Player/PlayerVisual"]
+offset_left = -10.0
+offset_top = -20.0
+offset_right = 40.0
+offset_bottom = 0.0
+color = Color(0.2, 0.1, 0.3, 1)
+
+[node name="ExitArrow" type="Label" parent="."]
+offset_left = 50.0
+offset_top = 300.0
+offset_right = 150.0
+offset_bottom = 340.0
+text = "← To Town"
+theme_override_font_sizes/font_size = 20
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="LocationLabel" type="Label" parent="UI"]
+offset_left = 380.0
+offset_top = 20.0
+offset_right = 580.0
+offset_bottom = 50.0
+text = "Seavale Station"
+theme_override_font_sizes/font_size = 24
+horizontal_alignment = 1
+
+[node name="Instructions" type="RichTextLabel" parent="UI"]
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = -60.0
+offset_right = 320.0
+offset_bottom = -20.0
+bbcode_enabled = true
+text = "[color=#C5A55A]Use WASD/Arrow keys to move[/color]"

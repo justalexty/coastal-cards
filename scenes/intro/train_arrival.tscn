@@ -1,0 +1,100 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/scenes/train_arrival.gd" id="1_train"]
+[ext_resource type="Theme" path="res://assets/ui/default_theme.tres" id="2_theme"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1"]
+bg_color = Color(0.1, 0.1, 0.15, 0.9)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.8, 0.7, 0.5, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="Gradient" id="Gradient_1"]
+colors = PackedColorArray(0.2, 0.3, 0.4, 1, 0.5, 0.4, 0.6, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_1"]
+gradient = SubResource("Gradient_1")
+fill_from = Vector2(0, 1)
+
+[node name="TrainArrival" type="Node2D"]
+script = ExtResource("1_train")
+
+[node name="Background" type="TextureRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 960.0
+offset_bottom = 540.0
+texture = SubResource("GradientTexture2D_1")
+
+[node name="TrainInterior" type="Node2D" parent="."]
+
+[node name="Window" type="ColorRect" parent="TrainInterior"]
+offset_left = 100.0
+offset_top = 50.0
+offset_right = 860.0
+offset_bottom = 300.0
+color = Color(0.6, 0.7, 0.8, 0.3)
+
+[node name="Seat" type="ColorRect" parent="TrainInterior"]
+offset_left = 300.0
+offset_top = 350.0
+offset_right = 660.0
+offset_bottom = 450.0
+color = Color(0.4, 0.2, 0.2, 1)
+
+[node name="DialogueBox" type="Panel" parent="."]
+custom_minimum_size = Vector2(700, 120)
+offset_left = 130.0
+offset_top = 380.0
+offset_right = 830.0
+offset_bottom = 500.0
+theme = ExtResource("2_theme")
+theme_override_styles/panel = SubResource("StyleBoxFlat_1")
+
+[node name="DialogueText" type="RichTextLabel" parent="DialogueBox"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 15.0
+offset_right = -20.0
+offset_bottom = -15.0
+bbcode_enabled = true
+text = "[center]The train begins to slow as you approach the coastal city...[/center]"
+
+[node name="CompactNotification" type="Panel" parent="."]
+visible = false
+custom_minimum_size = Vector2(400, 80)
+offset_left = 280.0
+offset_top = 50.0
+offset_right = 680.0
+offset_bottom = 130.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_1")
+
+[node name="NotificationText" type="Label" parent="CompactNotification"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+text = "Your enchanted compact mirror vibrates softly"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+
+[node name="ClickPrompt" type="Label" parent="."]
+visible = false
+offset_left = 380.0
+offset_top = 480.0
+offset_right = 580.0
+offset_bottom = 510.0
+text = "Click to continue..."
+horizontal_alignment = 1
