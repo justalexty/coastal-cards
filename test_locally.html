@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Coastal Cards - Local Test</title>
+    <style>
+        body { 
+            margin: 0; 
+            background: #222;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        iframe {
+            border: 2px solid #444;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+        .info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: white;
+            font-family: sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <div class="info">
+        Test the game locally before uploading to itch.io<br>
+        Should fill the 960×540 frame properly
+    </div>
+    <iframe src="web_export/index.html" width="960" height="540"></iframe>
+</body>
+</html>
