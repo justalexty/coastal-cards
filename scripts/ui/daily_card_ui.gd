@@ -191,7 +191,7 @@ func _on_skip_pressed():
 
 func _on_continue_pressed():
 	# Transition to main game
-	SceneManager.change_scene("res://scenes/locations/studio_apartment.tscn")
+	get_tree().change_scene_to_file("res://scenes/locations/studio_apartment.tscn")
 
 func _get_card_placeholder(card: Dictionary) -> Texture2D:
 	# This would return appropriate placeholder texture
