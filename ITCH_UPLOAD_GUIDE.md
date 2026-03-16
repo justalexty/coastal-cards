@@ -17,8 +17,8 @@ I've exported your game for web! Here's how to get it online:
    - Click "Create new project"
 
 3. **Fill in Details**
-   - Title: `Coastal Tarot`
-   - Project URL: `coastal-tarot` (this becomes yourusername.itch.io/coastal-tarot)
+   - Title: `Coastal Cards`
+   - Project URL: `coastal-cards` (this becomes yourusername.itch.io/coastal-cards)
    - Classification: Game
    - Kind of project: HTML
    - Pricing: Up to you! ($0 for free, or "Pay what you want")
