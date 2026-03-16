@@ -225,5 +225,5 @@ func _create_default_character():
 		"hair_color": 1,
 		"eye_color": 0,
 		"outfit": 0,
-		"accessory": null
+		"accessory": "witch_hat"  # Start with a witch hat!
 	}

@@ -68,9 +68,16 @@ const LAYER_ORDER = [
 ]
 
 func create_character_sprite(character_data: Dictionary) -> Node2D:
-	# For now, use placeholder sprites until we have real assets
-	var PlaceholderGen = preload("res://scripts/systems/placeholder_sprite_generator.gd")
-	return PlaceholderGen.create_placeholder_character(character_data)
+	# Create a simple pixel art witch!
+	var character_node = Node2D.new()
+	
+	var sprite = Sprite2D.new()
+	var PixelGen = preload("res://scripts/systems/simple_pixel_sprite_generator.gd")
+	sprite.texture = PixelGen.generate_witch_sprite(character_data)
+	sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST # Keep pixels sharp!
+	
+	character_node.add_child(sprite)
+	return character_node
 	
 	# Original layered sprite code (for when we have assets):
 	#var character_node = Node2D.new()
