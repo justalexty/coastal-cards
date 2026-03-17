@@ -125,7 +125,7 @@ const DEFAULT_STATE = {
   bodyType: 'androgynous',
   skinTone: 'medium',
   hairStyle: 'long_straight',
-  hairColor: 'black',
+  hairColor: 'brown',
   outfit: 'traditional',
   accessory: 'none',
   // Game progress
@@ -885,9 +885,10 @@ const SPRITE_FRAME = 64;
 const SPRITE_PATH = 'assets/sprites/character/seliel/';
 const SKIN_VARIANT_MAP = { pale: 'v00', light: 'v02', medium: 'v04', tan: 'v06', dark: 'v08', deep: 'v10' };
 const HAIR_STYLE_MAP = { bob: 'bob1', dapper: 'dap1' };
-const HAIR_COLOR_MAP = { black: 'v00', brown: 'v03', blonde: 'v05', red: 'v07', purple: 'v09', blue: 'v11', green: 'v12', white: 'v13', pink: 'v10' };
-const OUTFIT_MAP_SPRITE = { traditional: 'fstr', modern_witch: 'pfpn', casual: 'fstr', traveler: 'fstr', punk_witch: 'boxr' };
-const OUTFIT_VARIANT_MAP = { traditional: 'v01', modern_witch: 'v01', casual: 'v03', traveler: 'v04', punk_witch: 'v01' };
+const HAIR_COLOR_MAP = { grey: 'v00', silver: 'v01', sandy: 'v02', blonde: 'v03', auburn: 'v04', ginger: 'v05', rose: 'v06', purple: 'v07', teal: 'v08', blue: 'v09', charcoal: 'v10', brown: 'v11', pink: 'v12', slate: 'v13' };
+const HAIR_COLOR_HEX = { grey: '#82838b', silver: '#969f99', sandy: '#9a866b', blonde: '#b99141', auburn: '#af7060', ginger: '#b55b25', rose: '#bc7c85', purple: '#785d8b', teal: '#57938e', blue: '#527ba8', charcoal: '#6c6e78', brown: '#664630', pink: '#c26ba1', slate: '#60677f' };
+const OUTFIT_MAP_SPRITE = { traditional: 'fstr', modern: 'pfpn', casual: 'fstr', traveler: 'fstr', punk: 'pfpn' };
+const OUTFIT_VARIANT_MAP = { traditional: 'v01', modern: 'v01', casual: 'v03', traveler: 'v04', punk: 'v03' };
 const HAT_MAP = { hat: 'pfht', pointy: 'pnty' };
 const BODY_PREFIX = { feminine: 'p1', androgynous: 'p1', masculine: 'pONE1' };
 
@@ -914,7 +915,7 @@ async function drawCharPreview() {
   const outfitCode = OUTFIT_MAP_SPRITE[state.outfit || 'traditional'] || 'fstr';
   const outfitV = OUTFIT_VARIANT_MAP[state.outfit || 'traditional'] || 'v01';
   const hairCode = (state.hairStyle || 'bob').includes('bob') || (state.hairStyle || '').includes('short') ? 'bob1' : 'dap1';
-  const hairV = HAIR_COLOR_MAP[state.hairColor || 'black'] || 'v00';
+  const hairV = HAIR_COLOR_MAP[state.hairColor || 'brown'] || 'v00';
 
   const layers = [
     `char_a_${bp}_0bas_humn_${skinV}.png`,
@@ -949,8 +950,7 @@ function syncStylingTab() {
   if (b) b.value = state.bodyType || 'feminine';
   const hs = $('#compact-hairstyle');
   if (hs) hs.value = state.hairStyle || 'long_straight';
-  const hc = $('#compact-haircolor');
-  if (hc) hc.value = state.hairColor || 'black';
+  $$('.hair-dot').forEach(d => d.classList.toggle('selected', d.dataset.hair === (state.hairColor || 'brown')));
   const o = $('#compact-outfit');
   if (o) o.value = state.outfit || 'traditional';
   const a = $('#compact-accessory');
@@ -971,14 +971,24 @@ function initStylingTab() {
     });
   });
 
+  // Hair color dots
+  $$('.hair-dot').forEach(dot => {
+    dot.addEventListener('click', () => {
+      $$('.hair-dot').forEach(d => d.classList.remove('selected'));
+      dot.classList.add('selected');
+      state.hairColor = dot.dataset.hair;
+      drawCharPreview();
+    });
+  });
+
   // Live preview on any change
-  ['compact-pronouns','compact-body','compact-hairstyle','compact-haircolor','compact-outfit','compact-accessory'].forEach(id => {
+  ['compact-pronouns','compact-body','compact-hairstyle','compact-outfit','compact-accessory'].forEach(id => {
     const el = $(`#${id}`);
     if (el) el.addEventListener('change', () => {
       state.pronouns = $('#compact-pronouns').value;
       state.bodyType = $('#compact-body').value;
       state.hairStyle = $('#compact-hairstyle').value;
-      state.hairColor = $('#compact-haircolor').value;
+      
       state.outfit = $('#compact-outfit').value;
       state.accessory = $('#compact-accessory').value;
       drawCharPreview();
@@ -993,7 +1003,7 @@ function initStylingTab() {
     state.pronouns = $('#compact-pronouns').value;
     state.bodyType = $('#compact-body').value;
     state.hairStyle = $('#compact-hairstyle').value;
-    state.hairColor = $('#compact-haircolor').value;
+    
     state.outfit = $('#compact-outfit').value;
     state.accessory = $('#compact-accessory').value;
     saveGame();

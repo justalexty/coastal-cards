@@ -115,10 +115,10 @@
                 <p>Outfit:</p>
                 <div class="option-row wrap">
                   <button class="opt-btn selected" data-field="outfit" data-val="traditional">Traditional</button>
-                  <button class="opt-btn" data-field="outfit" data-val="modern_witch">Modern Witch</button>
+                  <button class="opt-btn" data-field="outfit" data-val="modern">Modern</button>
                   <button class="opt-btn" data-field="outfit" data-val="casual">Casual</button>
                   <button class="opt-btn" data-field="outfit" data-val="traveler">Traveler</button>
-                  <button class="opt-btn" data-field="outfit" data-val="punk_witch">Punk Witch</button>
+                  <button class="opt-btn" data-field="outfit" data-val="punk">Punk</button>
                 </div>
               </div>
               <div class="appearance-option">
@@ -271,17 +271,22 @@
                     </select>
                   </label>
                   <label class="style-label">Color:
-                    <select id="compact-haircolor">
-                      <option value="black">Black</option>
-                      <option value="brown">Brown</option>
-                      <option value="blonde">Blonde</option>
-                      <option value="red">Red</option>
-                      <option value="purple">Purple</option>
-                      <option value="blue">Blue</option>
-                      <option value="green">Green</option>
-                      <option value="white">White</option>
-                      <option value="pink">Pink</option>
-                    </select>
+                    <div class="compact-hair-colors">
+                      <button class="hair-dot selected" data-hair="brown" style="background:#664630" title="Brown"></button>
+                      <button class="hair-dot" data-hair="blonde" style="background:#b99141" title="Blonde"></button>
+                      <button class="hair-dot" data-hair="auburn" style="background:#af7060" title="Auburn"></button>
+                      <button class="hair-dot" data-hair="ginger" style="background:#b55b25" title="Ginger"></button>
+                      <button class="hair-dot" data-hair="grey" style="background:#82838b" title="Grey"></button>
+                      <button class="hair-dot" data-hair="charcoal" style="background:#6c6e78" title="Charcoal"></button>
+                      <button class="hair-dot" data-hair="sandy" style="background:#9a866b" title="Sandy"></button>
+                      <button class="hair-dot" data-hair="silver" style="background:#969f99" title="Silver"></button>
+                      <button class="hair-dot" data-hair="rose" style="background:#bc7c85" title="Rose"></button>
+                      <button class="hair-dot" data-hair="pink" style="background:#c26ba1" title="Pink"></button>
+                      <button class="hair-dot" data-hair="purple" style="background:#785d8b" title="Purple"></button>
+                      <button class="hair-dot" data-hair="blue" style="background:#527ba8" title="Blue"></button>
+                      <button class="hair-dot" data-hair="teal" style="background:#57938e" title="Teal"></button>
+                      <button class="hair-dot" data-hair="slate" style="background:#60677f" title="Slate"></button>
+                    </div>
                   </label>
                 </div>
                 <div class="style-row">
@@ -300,10 +305,10 @@
                   <label class="style-label">Outfit:
                     <select id="compact-outfit">
                       <option value="traditional">Traditional</option>
-                      <option value="modern_witch">Modern Witch</option>
+                      <option value="modern">Modern</option>
                       <option value="casual">Casual</option>
                       <option value="traveler">Traveler</option>
-                      <option value="punk_witch">Punk Witch</option>
+                      <option value="punk">Punk</option>
                     </select>
                   </label>
                   <label class="style-label">Accessory:
