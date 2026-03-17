@@ -120,7 +120,7 @@ const SAVE_KEY = 'coastal_cards_save';
 const DEFAULT_STATE = {
   // Character
   name: '',
-  pronouns: 'they',
+  pronouns: 'she',
   customPronouns: null,
   bodyType: 'androgynous',
   skinTone: 'medium',
