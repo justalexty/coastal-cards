@@ -565,7 +565,7 @@ const OPENING_LINES = [
   "But you've got your tarot deck, your compact mirror, and $25 to your name.",
   "You pull out your compact mirror and take one last look before arriving...",
   "__OPEN_COMPACT__",
-  "The conductor calls out: \"Last stop!\"",
+  "The conductor calls out: \"Seaglass Harbor! Last stop!\"",
   "You step onto the platform. The ocean breeze carries the scent of salt and possibility.",
   "This is it. Your new life as a professional tarot reader starts now.",
 ];
@@ -590,8 +590,8 @@ function typeNextChar() {
     setTimeout(() => {
       showScreen('game');
       renderGame();
-      showToast('Welcome! 🔮');
-      addMessage('WitchNet', 'Welcome! The Boardwalk is free to set up — no permit needed.');
+      showToast('Welcome to Seaglass! 🔮');
+      addMessage('WitchNet', 'Welcome to Seaglass! The Boardwalk is free to set up — no permit needed.');
     }, 500);
     return;
   }
@@ -1045,7 +1045,7 @@ function maybeAddMessage() {
                .replace(/\{s\/\}/g, state.pronouns === 'they' ? '' : 's')
                .replace(/\{need\}/g, state.pronouns === 'they' ? 'need' : 'needs')
                .replace(/\{want\}/g, state.pronouns === 'they' ? 'want' : 'wants');
-      const senders = ['WitchNet', 'LocalWitch42', 'CoastalCoven', 'BroomShare', 'FriendlyHex'];
+      const senders = ['WitchNet', 'LocalWitch42', 'SeaglassCoven', 'BroomShare', 'FriendlyHex'];
       addMessage(senders[Math.floor(Math.random() * senders.length)], msg);
     }
   }
