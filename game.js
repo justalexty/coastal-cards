@@ -671,10 +671,23 @@ function renderGame() {
 }
 
 // ============================================================
-// SCENE RENDERER — pixel art locations from tilesets
+// INTERACTIVE SCENE ENGINE
 // ============================================================
 const TILE = 16;
+const SCENE_W = 20; // tiles wide
+const SCENE_H = 12; // tiles tall
+const SCENE_PX = SCENE_W * TILE; // 320
+const SCENE_PH = SCENE_H * TILE; // 192
 const SCENE_SHEETS = {};
+let sceneLoop = null;
+let sceneNPCs = [];
+let playerPos = { x: 5, y: 6 }; // tile coords
+let playerTarget = null; // {x,y} tile destination
+let playerDir = 2; // 0=up,1=left,2=down,3=right (sprite row)
+let playerFrame = 0;
+let frameCount = 0;
+let tablePos = null; // {x,y} where player placed table
+let tableSetUp = false;
 
 function loadSheet(name) {
   if (SCENE_SHEETS[name]) return Promise.resolve(SCENE_SHEETS[name]);
@@ -691,296 +704,584 @@ function spr(ctx, sheet, sx, sy, dx, dy, sw, sh) {
   ctx.drawImage(sheet, sx, sy, sw, sh, dx, dy, sw, sh);
 }
 
-// Time-of-day overlays
 const TIME_TINTS = [
-  null,                            // morning — no tint
-  null,                            // afternoon — no tint
-  'rgba(255,140,60,0.15)',         // evening — warm orange
-  'rgba(20,10,50,0.45)',           // night — dark blue
+  null,
+  null,
+  'rgba(255,140,60,0.15)',
+  'rgba(20,10,50,0.45)',
 ];
 
-async function drawScene(locationId, timeOfDay) {
-  const canvas = $('#scene-canvas');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  ctx.imageSmoothingEnabled = false;
-  const W = canvas.width, H = canvas.height;
+// Location scene data: walkable tiles, table spots, NPC spawn/paths, solid objects
+const SCENE_DATA = {
+  apartment: {
+    ground: '#b8956a', wall: '#d4c4a8',
+    solids: [[0,0,3,3],[17,0,3,3],[8,0,4,2]], // furniture blocks
+    tableSpots: [], // can't read at home
+    npcPaths: [],
+    playerStart: {x:10,y:8},
+    indoor: true,
+    draw: 'apartment',
+  },
+  boardwalk: {
+    ground: '#e8d5a8',
+    solids: [[0,0,20,2],[0,10,20,2]], // top wall + ocean
+    tableSpots: [{x:5,y:5,label:'By the stalls'},{x:14,y:5,label:'Ocean view'}],
+    npcPaths: [
+      {spawn:{x:-1,y:6},dest:{x:21,y:6}},
+      {spawn:{x:21,y:7},dest:{x:-1,y:7}},
+      {spawn:{x:-1,y:4},dest:{x:21,y:4}},
+    ],
+    playerStart: {x:10,y:6},
+    draw: 'boardwalk',
+  },
+  market: {
+    ground: '#a09080',
+    solids: [[0,0,20,2],[2,3,2,2],[8,3,2,2],[15,3,2,2]], // wall + stalls
+    tableSpots: [{x:5,y:6,label:'Between stalls'},{x:12,y:8,label:'Center square'}],
+    npcPaths: [
+      {spawn:{x:-1,y:5},dest:{x:21,y:5}},
+      {spawn:{x:21,y:7},dest:{x:-1,y:7}},
+      {spawn:{x:10,y:-1},dest:{x:10,y:12}},
+    ],
+    playerStart: {x:10,y:7},
+    draw: 'market',
+  },
+  university: {
+    ground: '#6aaa5a',
+    solids: [[0,0,20,3],[0,0,2,12],[18,0,2,12]], // building + tree walls
+    tableSpots: [{x:7,y:6,label:'Campus lawn'},{x:13,y:8,label:'Near the path'}],
+    npcPaths: [
+      {spawn:{x:10,y:-1},dest:{x:10,y:12}},
+      {spawn:{x:10,y:12},dest:{x:10,y:-1}},
+      {spawn:{x:-1,y:7},dest:{x:21,y:7}},
+    ],
+    playerStart: {x:10,y:7},
+    draw: 'university',
+  },
+  harbor: {
+    ground: '#808080',
+    solids: [[0,0,20,2],[0,9,20,3]], // dock edge + water
+    tableSpots: [{x:4,y:5,label:'Near the crates'},{x:15,y:5,label:'Dock end'}],
+    npcPaths: [
+      {spawn:{x:-1,y:4},dest:{x:21,y:4}},
+      {spawn:{x:21,y:6},dest:{x:-1,y:6}},
+    ],
+    playerStart: {x:10,y:5},
+    draw: 'harbor',
+  },
+  park: {
+    ground: '#5a9a4a',
+    solids: [[1,1,2,2],[12,2,2,2],[17,1,2,2],[6,9,2,2]], // trees
+    tableSpots: [{x:8,y:5,label:'By the bench'},{x:15,y:7,label:'Under the tree'}],
+    npcPaths: [
+      {spawn:{x:-1,y:5},dest:{x:21,y:5}},
+      {spawn:{x:21,y:8},dest:{x:-1,y:8}},
+      {spawn:{x:5,y:-1},dest:{x:15,y:12}},
+    ],
+    playerStart: {x:10,y:6},
+    draw: 'park',
+  },
+};
 
-  // Load needed sheets
-  const [grass, water, houses, exterior, nature, trees, hills, furniture, furniture2, floors, furnState, doors, smallItems] = await Promise.all([
-    loadSheet('grass'), loadSheet('water'), loadSheet('houses'),
-    loadSheet('exterior'), loadSheet('nature'), loadSheet('trees2'),
-    loadSheet('hills'), loadSheet('furniture'), loadSheet('furniture2'),
-    loadSheet('TopDownHouse_FloorsAndWalls'), loadSheet('TopDownHouse_FurnitureState1'),
-    loadSheet('TopDownHouse_DoorsAndWindows'), loadSheet('TopDownHouse_SmallItems'),
-  ]);
-
-  ctx.clearRect(0, 0, W, H);
-
-  // Sky gradient
-  const skyColors = [
-    ['#87CEEB','#e0f0ff'],  // morning
-    ['#5eadd6','#87CEEB'],  // afternoon
-    ['#ff8855','#ffcc88'],  // evening
-    ['#0a0a2e','#1a1a4e'],  // night
-  ];
-  const [c1, c2] = skyColors[timeOfDay] || skyColors[0];
-  const skyGrad = ctx.createLinearGradient(0, 0, 0, H * 0.4);
-  skyGrad.addColorStop(0, c1);
-  skyGrad.addColorStop(1, c2);
-  ctx.fillStyle = skyGrad;
-  ctx.fillRect(0, 0, W, H * 0.4);
-
-  // Ground
-  const groundY = Math.floor(H * 0.4);
-  const scenes = {
-    apartment: () => drawApartment(ctx, W, H, floors, furnState, doors, smallItems, groundY),
-    boardwalk: () => drawBoardwalk(ctx, W, H, grass, water, exterior, nature, groundY),
-    market: () => drawMarket(ctx, W, H, grass, houses, exterior, groundY),
-    university: () => drawUniversity(ctx, W, H, grass, exterior, nature, trees, groundY),
-    harbor: () => drawHarbor(ctx, W, H, water, exterior, hills, groundY),
-    park: () => drawPark(ctx, W, H, grass, nature, trees, groundY),
-  };
-
-  if (scenes[locationId]) await scenes[locationId]();
-
-  // Time-of-day tint
-  const tint = TIME_TINTS[timeOfDay];
-  if (tint) {
-    ctx.fillStyle = tint;
-    ctx.fillRect(0, 0, W, H);
+// NPC class
+class NPC {
+  constructor(path, speed) {
+    this.x = path.spawn.x * TILE;
+    this.y = path.spawn.y * TILE;
+    this.destX = path.dest.x * TILE;
+    this.destY = path.dest.y * TILE;
+    this.speed = speed || (0.3 + Math.random() * 0.3);
+    this.dir = 2; // sprite row
+    this.frame = 0;
+    this.state = 'walking'; // walking | approaching | reading | leaving | gone
+    this.waitTimer = 0;
+    this.skinV = 'v' + String(Math.floor(Math.random() * 6) * 2).padStart(2, '0');
+    this.hairV = 'v' + String(Math.floor(Math.random() * 14)).padStart(2, '0');
+    this.hairStyle = Math.random() < 0.5 ? 'bob1' : 'dap1';
+    this.outfitCode = ['fstr', 'pfpn'][Math.floor(Math.random() * 2)];
+    this.outfitV = 'v' + String(Math.floor(Math.random() * 5) + 1).padStart(2, '0');
+    this.body = Math.random() < 0.5 ? 'p1' : 'pONE1';
+    // Direction based on movement
+    const dx = this.destX - this.x, dy = this.destY - this.y;
+    if (Math.abs(dx) > Math.abs(dy)) this.dir = dx > 0 ? 3 : 1;
+    else this.dir = dy > 0 ? 2 : 0;
   }
 
-  // Night: add stars
-  if (timeOfDay === 3) {
+  update(dt) {
+    if (this.state === 'gone') return;
+
+    if (this.state === 'walking') {
+      const dx = this.destX - this.x, dy = this.destY - this.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < 2) { this.state = 'gone'; return; }
+
+      // Check if near player table — chance to stop
+      if (tableSetUp && tablePos) {
+        const tx = tablePos.x * TILE, ty = tablePos.y * TILE;
+        const tdist = Math.sqrt((this.x - tx) ** 2 + (this.y - ty) ** 2);
+        if (tdist < TILE * 2.5 && this.state === 'walking') {
+          const stopChance = 0.15 + (state.reputation / 100) * 0.45; // 15-60%
+          if (Math.random() < stopChance) {
+            this.state = 'approaching';
+            this.destX = tx + TILE;
+            this.destY = ty;
+            return;
+          }
+        }
+      }
+
+      const mx = (dx / dist) * this.speed;
+      const my = (dy / dist) * this.speed;
+      this.x += mx;
+      this.y += my;
+      this.frame += 0.08;
+
+    } else if (this.state === 'approaching') {
+      const dx = this.destX - this.x, dy = this.destY - this.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < 2) {
+        this.state = 'reading';
+        this.waitTimer = 120 + Math.random() * 180; // wait 2-5 sec
+        this.dir = 1; // face left toward table
+        // Show reading prompt!
+        if (!$('#scene-reading-prompt')) {
+          const prompt = document.createElement('div');
+          prompt.id = 'scene-reading-prompt';
+          prompt.className = 'scene-prompt';
+          prompt.innerHTML = `<button class="magic-btn" onclick="Game.startReading()">🃏 Do Reading</button>`;
+          $('#location-scene').appendChild(prompt);
+        }
+        return;
+      }
+      const mx = (dx / dist) * this.speed * 0.7;
+      const my = (dy / dist) * this.speed * 0.7;
+      this.x += mx;
+      this.y += my;
+      this.frame += 0.06;
+
+    } else if (this.state === 'reading') {
+      this.waitTimer--;
+      if (this.waitTimer <= 0) {
+        this.state = 'leaving';
+        this.destX = (Math.random() < 0.5 ? -2 : 22) * TILE;
+        this.destY = this.y;
+        const el = $('#scene-reading-prompt');
+        if (el) el.remove();
+      }
+
+    } else if (this.state === 'leaving') {
+      const dx = this.destX - this.x;
+      this.x += Math.sign(dx) * this.speed;
+      this.dir = dx > 0 ? 3 : 1;
+      this.frame += 0.08;
+      if (Math.abs(this.destX - this.x) < 2) this.state = 'gone';
+    }
+  }
+
+  getSpriteFiles() {
+    return [
+      `char_a_${this.body}_0bas_humn_${this.skinV}.png`,
+      `char_a_${this.body}_1out_${this.outfitCode}_${this.outfitV}.png`,
+      `char_a_${this.body}_4har_${this.hairStyle}_${this.hairV}.png`,
+    ];
+  }
+}
+
+// Spawn NPCs for current location
+function spawnNPCs() {
+  sceneNPCs = [];
+  const sd = SCENE_DATA[state.location];
+  if (!sd || !sd.npcPaths.length) return;
+  // Spawn 2-4 NPCs
+  const count = 2 + Math.floor(Math.random() * 3);
+  for (let i = 0; i < count; i++) {
+    const path = sd.npcPaths[i % sd.npcPaths.length];
+    const npc = new NPC(path);
+    // Stagger spawns
+    npc.x += (Math.random() - 0.5) * TILE * 4;
+    sceneNPCs.push(npc);
+  }
+}
+
+// Periodically spawn new NPCs
+let npcSpawnTimer = 0;
+function maybeSpawnNPC() {
+  npcSpawnTimer++;
+  if (npcSpawnTimer < 180) return; // every ~3 sec
+  npcSpawnTimer = 0;
+  const sd = SCENE_DATA[state.location];
+  if (!sd || !sd.npcPaths.length) return;
+  if (sceneNPCs.filter(n => n.state !== 'gone').length >= 5) return;
+  const path = sd.npcPaths[Math.floor(Math.random() * sd.npcPaths.length)];
+  sceneNPCs.push(new NPC(path));
+}
+
+// Draw a character sprite (player or NPC) at pixel position
+async function drawCharSprite(ctx, files, px, py, dir, frame, scale) {
+  scale = scale || 1;
+  const col = Math.floor(frame) % 7;
+  const row = dir; // 0=down,1=up,2=left,3=right — but Seliel: row0=down, row1=up, row2=left, row3=right? Check.
+  // Seliel layout: row 0=down, 1=up, 2=left, 3=right (walk)
+  // We want: 0=up,1=left,2=down,3=right → remap
+  const spriteRow = [1, 2, 0, 3][dir] || 0;
+  for (const file of files) {
+    try {
+      const img = await loadSprite(SPRITE_PATH + file);
+      ctx.drawImage(img,
+        col * SPRITE_FRAME, spriteRow * SPRITE_FRAME, SPRITE_FRAME, SPRITE_FRAME,
+        px - SPRITE_FRAME * scale / 2, py - SPRITE_FRAME * scale + 4, SPRITE_FRAME * scale, SPRITE_FRAME * scale
+      );
+    } catch(e) {}
+  }
+}
+
+// Get player sprite layer files
+function getPlayerSpriteFiles() {
+  const bp = BODY_PREFIX[state.bodyType || 'feminine'] || 'p1';
+  const skinV = SKIN_VARIANT_MAP[state.skinTone || 'pale'] || 'v00';
+  const outfitCode = OUTFIT_MAP_SPRITE[state.outfit || 'traditional'] || 'fstr';
+  const outfitV = OUTFIT_VARIANT_MAP[state.outfit || 'traditional'] || 'v01';
+  const hairCode = (state.hairStyle || 'bob').includes('bob') || (state.hairStyle || '').includes('short') ? 'bob1' : 'dap1';
+  const hairV = HAIR_COLOR_MAP[state.hairColor || 'brown'] || 'v00';
+  const layers = [
+    `char_a_${bp}_0bas_humn_${skinV}.png`,
+    `char_a_${bp}_1out_${outfitCode}_${outfitV}.png`,
+    `char_a_${bp}_4har_${hairCode}_${hairV}.png`,
+  ];
+  if (state.accessory === 'hat') layers.push(`char_a_${bp}_5hat_pfht_v01.png`);
+  return layers;
+}
+
+// Draw background for location
+async function drawSceneBG(ctx) {
+  const sd = SCENE_DATA[state.location];
+  const tod = state.timeOfDay;
+  ctx.imageSmoothingEnabled = false;
+
+  // Load sheets
+  const [grass, water, houses, exterior, nature, trees, hills, furnState, floors] = await Promise.all([
+    loadSheet('grass'), loadSheet('water'), loadSheet('houses'),
+    loadSheet('exterior'), loadSheet('nature'), loadSheet('trees2'),
+    loadSheet('hills'), loadSheet('TopDownHouse_FurnitureState1'),
+    loadSheet('TopDownHouse_FloorsAndWalls'),
+  ]);
+
+  // Fill ground
+  ctx.fillStyle = sd.ground;
+  ctx.fillRect(0, 0, SCENE_PX, SCENE_PH);
+
+  const d = sd.draw;
+
+  if (d === 'apartment') {
+    // Wooden floor planks
+    ctx.strokeStyle = '#a07850'; ctx.lineWidth = 1;
+    for (let y = 0; y < SCENE_PH; y += TILE) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(SCENE_PX, y); ctx.stroke();
+    }
+    for (let x = 0; x < SCENE_PX; x += TILE * 2) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, SCENE_PH); ctx.stroke();
+    }
+    // Back wall
+    ctx.fillStyle = '#d4c4a8';
+    ctx.fillRect(0, 0, SCENE_PX, TILE * 3);
+    ctx.fillStyle = '#c8b898';
+    ctx.fillRect(0, TILE * 3 - 8, SCENE_PX, 8);
+    // Window
+    ctx.fillStyle = '#87CEEB';
+    ctx.fillRect(TILE * 8, TILE, TILE * 4, TILE * 1.5);
+    ctx.strokeStyle = '#8b7355'; ctx.lineWidth = 2;
+    ctx.strokeRect(TILE * 8, TILE, TILE * 4, TILE * 1.5);
+    // Bed (top-left)
+    spr(ctx, furnState, 0, 0, 0, TILE, 32, 48);
+    // Bookshelf (top-right)
+    spr(ctx, furnState, 48, 0, TILE * 17, TILE, 32, 48);
+    // Rug
+    ctx.fillStyle = 'rgba(140,60,80,0.35)';
+    ctx.fillRect(TILE * 7, TILE * 6, TILE * 6, TILE * 4);
+  }
+
+  if (d === 'boardwalk') {
+    // Top: stalls/buildings
+    ctx.fillStyle = '#c4a870';
+    ctx.fillRect(0, 0, SCENE_PX, TILE * 2);
+    spr(ctx, exterior, 0, 0, TILE * 2, 0, 32, 32);
+    spr(ctx, exterior, 32, 0, TILE * 8, 0, 32, 32);
+    spr(ctx, exterior, 64, 0, TILE * 14, 0, 32, 32);
+    // Boardwalk planks (middle)
+    ctx.fillStyle = '#a08860';
+    ctx.fillRect(0, TILE * 3, SCENE_PX, TILE * 5);
+    ctx.strokeStyle = '#8b7355'; ctx.lineWidth = 1;
+    for (let x = 0; x < SCENE_PX; x += 20) {
+      ctx.beginPath(); ctx.moveTo(x, TILE * 3); ctx.lineTo(x, TILE * 8); ctx.stroke();
+    }
+    // Railing
+    ctx.fillStyle = '#c4a870';
+    ctx.fillRect(0, TILE * 8, SCENE_PX, 3);
+    for (let x = 8; x < SCENE_PX; x += 24) ctx.fillRect(x, TILE * 7.5, 2, TILE);
+    // Sand + ocean
+    ctx.fillStyle = '#e8d5a8';
+    ctx.fillRect(0, TILE * 8 + 3, SCENE_PX, TILE);
+    ctx.fillStyle = '#3a8abf';
+    ctx.fillRect(0, TILE * 10, SCENE_PX, TILE * 2);
+    ctx.strokeStyle = 'rgba(255,255,255,0.3)'; ctx.lineWidth = 1;
+    for (let wy = TILE * 10; wy < SCENE_PH; wy += 8) {
+      ctx.beginPath();
+      for (let wx = 0; wx < SCENE_PX; wx += 4) ctx.lineTo(wx, wy + Math.sin(wx * 0.08 + frameCount * 0.02) * 2);
+      ctx.stroke();
+    }
+  }
+
+  if (d === 'market') {
+    // Cobblestone
+    ctx.strokeStyle = '#908070'; ctx.lineWidth = 0.5;
+    for (let y = 0; y < SCENE_PH; y += TILE)
+      for (let x = (y % 32 === 0 ? 0 : 8); x < SCENE_PX; x += TILE)
+        ctx.strokeRect(x, y, TILE, TILE);
+    // Back wall with shops
+    ctx.fillStyle = '#706050';
+    ctx.fillRect(0, 0, SCENE_PX, TILE * 2);
+    spr(ctx, houses, 0, 0, 0, -16, 64, 64);
+    spr(ctx, houses, 64, 0, TILE * 5, -16, 64, 64);
+    spr(ctx, houses, 128, 0, TILE * 10, -16, 64, 64);
+    spr(ctx, houses, 0, 64, TILE * 15, -16, 64, 64);
+    // Stalls
+    spr(ctx, exterior, 0, 0, TILE * 2, TILE * 3, 32, 32);
+    spr(ctx, exterior, 32, 0, TILE * 8, TILE * 3, 32, 32);
+    spr(ctx, exterior, 64, 0, TILE * 15, TILE * 3, 32, 32);
+  }
+
+  if (d === 'university') {
+    // Building (top)
+    ctx.fillStyle = '#8a7060';
+    ctx.fillRect(TILE * 3, 0, TILE * 14, TILE * 3);
+    ctx.fillStyle = '#a08870';
+    ctx.fillRect(TILE * 3 + 2, 2, TILE * 14 - 4, TILE * 3 - 4);
+    ctx.fillStyle = '#87CEEB';
+    for (let wx = TILE * 4; wx < TILE * 16; wx += TILE * 2) {
+      ctx.fillRect(wx, TILE, TILE * 1.2, TILE * 1.2);
+    }
+    ctx.fillStyle = '#5a3a1a';
+    ctx.fillRect(TILE * 9.5, TILE * 1.5, TILE * 1.2, TILE * 1.5);
+    // Stone path
+    ctx.fillStyle = '#c4b090';
+    ctx.fillRect(TILE * 9, TILE * 3, TILE * 2, SCENE_PH);
+    // Trees (sides)
+    spr(ctx, trees, 0, 0, 0, TILE * 2, 32, 32);
+    spr(ctx, trees, 0, 0, TILE * 18, TILE * 2, 32, 32);
+    spr(ctx, trees, 32, 0, 0, TILE * 7, 32, 32);
+    spr(ctx, trees, 32, 0, TILE * 18, TILE * 7, 32, 32);
+  }
+
+  if (d === 'harbor') {
+    // Stone dock (top part)
+    ctx.fillStyle = '#808080';
+    ctx.fillRect(0, 0, SCENE_PX, TILE * 9);
+    ctx.strokeStyle = '#606060'; ctx.lineWidth = 0.5;
+    for (let y = 0; y < TILE * 9; y += TILE)
+      for (let x = (y % 32 === 0 ? 0 : 8); x < SCENE_PX; x += TILE)
+        ctx.strokeRect(x, y, TILE, TILE);
+    // Crates/barrels
+    spr(ctx, exterior, 240, 0, TILE, TILE * 2, TILE, TILE);
+    spr(ctx, exterior, 256, 0, TILE * 2, TILE * 2, TILE, TILE);
+    spr(ctx, exterior, 240, 0, TILE * 17, TILE * 3, TILE, TILE);
+    // Ocean
+    ctx.fillStyle = '#2878a8';
+    ctx.fillRect(0, TILE * 9, SCENE_PX, TILE * 3);
+    ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.lineWidth = 1;
+    for (let wy = TILE * 9; wy < SCENE_PH; wy += 8) {
+      ctx.beginPath();
+      for (let wx = 0; wx < SCENE_PX; wx += 4) ctx.lineTo(wx, wy + Math.sin(wx * 0.06 + frameCount * 0.015) * 2);
+      ctx.stroke();
+    }
+    // Dock edge
+    ctx.fillStyle = '#6a6a6a';
+    ctx.fillRect(0, TILE * 8.5, SCENE_PX, TILE * 0.5);
+  }
+
+  if (d === 'park') {
+    // Winding path
+    ctx.fillStyle = '#d4c4a0';
+    ctx.beginPath();
+    ctx.moveTo(0, TILE * 5);
+    ctx.quadraticCurveTo(TILE * 6, TILE * 3, TILE * 10, TILE * 6);
+    ctx.quadraticCurveTo(TILE * 14, TILE * 9, TILE * 20, TILE * 7);
+    ctx.lineTo(TILE * 20, TILE * 8);
+    ctx.quadraticCurveTo(TILE * 14, TILE * 10, TILE * 10, TILE * 7);
+    ctx.quadraticCurveTo(TILE * 6, TILE * 4, 0, TILE * 6);
+    ctx.fill();
+    // Trees
+    spr(ctx, trees, 0, 0, TILE, TILE, 32, 32);
+    spr(ctx, trees, 32, 0, TILE * 12, TILE * 2, 32, 32);
+    spr(ctx, trees, 0, 0, TILE * 17, TILE, 32, 32);
+    spr(ctx, trees, 32, 0, TILE * 6, TILE * 9, 32, 32);
+    // Flowers
+    for (let i = 0; i < 5; i++) {
+      spr(ctx, nature, 32, 0, TILE * (3 + i * 3.5), TILE * (5 + (i % 3)), TILE, TILE);
+    }
+    // Bench
+    ctx.fillStyle = '#8b7355';
+    ctx.fillRect(TILE * 8 - 8, TILE * 5, 32, 5);
+    ctx.fillRect(TILE * 8 - 6, TILE * 5 + 5, 4, 6);
+    ctx.fillRect(TILE * 8 + 18, TILE * 5 + 5, 4, 6);
+  }
+
+  // Table spots — show indicators
+  const sd2 = SCENE_DATA[state.location];
+  if (sd2.tableSpots && !tableSetUp) {
+    ctx.globalAlpha = 0.4 + Math.sin(frameCount * 0.05) * 0.2;
+    sd2.tableSpots.forEach(spot => {
+      ctx.fillStyle = '#d4a574';
+      ctx.fillRect(spot.x * TILE, spot.y * TILE, TILE * 2, TILE * 2);
+      ctx.strokeStyle = '#a07850';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(spot.x * TILE, spot.y * TILE, TILE * 2, TILE * 2);
+    });
+    ctx.globalAlpha = 1;
+  }
+
+  // Draw placed table
+  if (tableSetUp && tablePos) {
+    const tx = tablePos.x * TILE, ty = tablePos.y * TILE;
+    // Table
+    ctx.fillStyle = '#8b6a3a';
+    ctx.fillRect(tx, ty + 4, TILE * 2, TILE - 4);
+    ctx.fillStyle = '#a07850';
+    ctx.fillRect(tx + 1, ty, TILE * 2 - 2, 5);
+    // Cloth
+    ctx.fillStyle = '#4a2060';
+    ctx.fillRect(tx + 2, ty + 1, TILE * 2 - 4, 3);
+    // Crystal ball
+    ctx.fillStyle = 'rgba(180,160,220,0.7)';
+    ctx.beginPath();
+    ctx.arc(tx + TILE, ty + 3, 3, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Time-of-day tint
+  const tint = TIME_TINTS[state.timeOfDay];
+  if (tint) {
+    ctx.fillStyle = tint;
+    ctx.fillRect(0, 0, SCENE_PX, SCENE_PH);
+  }
+
+  // Night stars
+  if (state.timeOfDay === 3 && !SCENE_DATA[state.location].indoor) {
     ctx.fillStyle = '#fff';
-    for (let i = 0; i < 20; i++) {
-      const sx = Math.random() * W, sy = Math.random() * groundY * 0.8;
-      ctx.globalAlpha = 0.3 + Math.random() * 0.7;
-      ctx.fillRect(sx, sy, 1, 1);
+    for (let i = 0; i < 12; i++) {
+      ctx.globalAlpha = 0.3 + Math.random() * 0.5;
+      ctx.fillRect(Math.random() * SCENE_PX, Math.random() * TILE * 2, 1, 1);
     }
     ctx.globalAlpha = 1;
   }
 }
 
-function fillGround(ctx, W, H, groundY, color) {
-  ctx.fillStyle = color;
-  ctx.fillRect(0, groundY, W, H - groundY);
-}
+// Main scene loop
+async function sceneFrame() {
+  const canvas = $('#scene-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  ctx.imageSmoothingEnabled = false;
+  frameCount++;
 
-function tileRow(ctx, sheet, sx, sy, startX, y, count, tw, th) {
-  tw = tw || TILE; th = th || TILE;
-  for (let i = 0; i < count; i++) {
-    spr(ctx, sheet, sx, sy, startX + i * tw, y, tw, th);
-  }
-}
+  // Draw background
+  await drawSceneBG(ctx);
 
-function drawApartment(ctx, W, H, floors, furnState, doors, smallItems, groundY) {
-  // Indoor scene — wooden floor + walls
-  // Floor
-  ctx.fillStyle = '#b8956a';
-  ctx.fillRect(0, groundY, W, H - groundY);
-  // Floor planks
-  ctx.strokeStyle = '#a07850';
-  ctx.lineWidth = 1;
-  for (let y = groundY; y < H; y += TILE) {
-    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
-  }
-  for (let x = 0; x < W; x += TILE * 2) {
-    ctx.beginPath(); ctx.moveTo(x, groundY); ctx.lineTo(x, H); ctx.stroke();
-  }
-  // Back wall
-  ctx.fillStyle = '#d4c4a8';
-  ctx.fillRect(0, 0, W, groundY + 8);
-  // Wallpaper stripe
-  ctx.fillStyle = '#c8b898';
-  ctx.fillRect(0, groundY - 12, W, 12);
-  // Window
-  ctx.fillStyle = '#87CEEB';
-  ctx.fillRect(W/2 - 24, 20, 48, 32);
-  ctx.strokeStyle = '#8b7355';
-  ctx.lineWidth = 3;
-  ctx.strokeRect(W/2 - 24, 20, 48, 32);
-  ctx.beginPath(); ctx.moveTo(W/2, 20); ctx.lineTo(W/2, 52); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(W/2 - 24, 36); ctx.lineTo(W/2 + 24, 36); ctx.stroke();
-  // Furniture from tilesheet
-  spr(ctx, furnState, 0, 0, 20, groundY + 8, 32, 48); // bed
-  spr(ctx, furnState, 48, 0, W - 60, groundY + 4, 32, 48); // bookshelf
-  spr(ctx, smallItems, 0, 0, W/2 + 40, groundY + 16, TILE, TILE); // small item
-  // Rug
-  ctx.fillStyle = 'rgba(140,60,80,0.4)';
-  ctx.fillRect(W/2 - 32, groundY + 32, 64, 32);
-  ctx.strokeStyle = 'rgba(180,80,100,0.5)';
-  ctx.strokeRect(W/2 - 32, groundY + 32, 64, 32);
-}
-
-function drawBoardwalk(ctx, W, H, grass, water, exterior, nature, groundY) {
-  // Ocean bottom half
-  ctx.fillStyle = '#3a8abf';
-  ctx.fillRect(0, H * 0.65, W, H * 0.35);
-  // Wave lines
-  ctx.strokeStyle = 'rgba(255,255,255,0.3)';
-  ctx.lineWidth = 1;
-  for (let wy = H * 0.7; wy < H; wy += 12) {
-    ctx.beginPath();
-    for (let wx = 0; wx < W; wx += 4) {
-      ctx.lineTo(wx, wy + Math.sin(wx * 0.05) * 3);
-    }
-    ctx.stroke();
-  }
-  // Sandy ground
-  ctx.fillStyle = '#e8d5a8';
-  ctx.fillRect(0, groundY, W, H * 0.25);
-  // Boardwalk planks
-  ctx.fillStyle = '#a08860';
-  ctx.fillRect(0, groundY + 16, W, 40);
-  ctx.strokeStyle = '#8b7355';
-  ctx.lineWidth = 1;
-  for (let x = 0; x < W; x += 20) {
-    ctx.beginPath(); ctx.moveTo(x, groundY + 16); ctx.lineTo(x, groundY + 56); ctx.stroke();
-  }
-  // Railing
-  ctx.fillStyle = '#c4a870';
-  ctx.fillRect(0, groundY + 52, W, 4);
-  for (let x = 10; x < W; x += 30) {
-    ctx.fillRect(x, groundY + 40, 3, 16);
-  }
-  // Market stalls from exterior tileset
-  spr(ctx, exterior, 0, 0, 40, groundY - 16, 32, 32);
-  spr(ctx, exterior, 32, 0, 140, groundY - 16, 32, 32);
-  spr(ctx, exterior, 64, 0, 240, groundY - 16, 32, 32);
-  // Beach grass tufts
-  for (let x = 10; x < W; x += 50) {
-    spr(ctx, nature, 0, 0, x, groundY - 4, TILE, TILE);
-  }
-}
-
-function drawMarket(ctx, W, H, grass, houses, exterior, groundY) {
-  // Cobblestone ground
-  ctx.fillStyle = '#a09080';
-  ctx.fillRect(0, groundY, W, H - groundY);
-  ctx.strokeStyle = '#908070';
-  for (let y = groundY; y < H; y += TILE) {
-    for (let x = (y % 32 === 0 ? 0 : 8); x < W; x += TILE) {
-      ctx.strokeRect(x, y, TILE, TILE);
+  // Update & draw NPCs
+  maybeSpawnNPC();
+  sceneNPCs = sceneNPCs.filter(n => n.state !== 'gone');
+  for (const npc of sceneNPCs) {
+    npc.update(1);
+    if (npc.x > -TILE && npc.x < SCENE_PX + TILE && npc.y > -TILE && npc.y < SCENE_PH + TILE) {
+      await drawCharSprite(ctx, npc.getSpriteFiles(), npc.x, npc.y + TILE, npc.dir, npc.frame, 0.5);
     }
   }
-  // Houses/shops in background
-  spr(ctx, houses, 0, 0, 10, groundY - 56, 64, 64);
-  spr(ctx, houses, 64, 0, 90, groundY - 56, 64, 64);
-  spr(ctx, houses, 128, 0, 180, groundY - 56, 64, 64);
-  // Market stalls
-  spr(ctx, exterior, 0, 0, 50, groundY + 8, 32, 32);
-  spr(ctx, exterior, 32, 0, 130, groundY + 8, 32, 32);
-  spr(ctx, exterior, 64, 0, 230, groundY + 8, 32, 32);
-  // Barrels from exterior
-  spr(ctx, exterior, 240, 0, 280, groundY + 16, TILE, TILE);
-  spr(ctx, exterior, 240, 0, 296, groundY + 16, TILE, TILE);
+
+  // Move player toward target
+  if (playerTarget) {
+    const tx = playerTarget.x * TILE + TILE / 2, ty = playerTarget.y * TILE + TILE / 2;
+    const dx = tx - (playerPos.x * TILE + TILE / 2), dy = ty - (playerPos.y * TILE + TILE / 2);
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist < 2) {
+      playerPos.x = playerTarget.x;
+      playerPos.y = playerTarget.y;
+      playerTarget = null;
+      playerFrame = 0;
+      // Check if we stepped on a table spot
+      checkTableSpot();
+    } else {
+      const spd = 0.8;
+      playerPos.x += (dx / dist) * spd / TILE;
+      playerPos.y += (dy / dist) * spd / TILE;
+      if (Math.abs(dx) > Math.abs(dy)) playerDir = dx > 0 ? 3 : 1;
+      else playerDir = dy > 0 ? 2 : 0;
+      playerFrame += 0.1;
+    }
+  }
+
+  // Draw player
+  const pfiles = getPlayerSpriteFiles();
+  await drawCharSprite(ctx, pfiles, playerPos.x * TILE + TILE / 2, playerPos.y * TILE + TILE, playerDir, playerTarget ? playerFrame : 0, 0.5);
+
+  sceneLoop = requestAnimationFrame(sceneFrame);
 }
 
-function drawUniversity(ctx, W, H, grass, exterior, nature, trees, groundY) {
-  // Grass ground
-  fillGround(ctx, W, H, groundY, '#6aaa5a');
-  // Path
-  ctx.fillStyle = '#c4b090';
-  ctx.fillRect(W/2 - 20, groundY, 40, H - groundY);
-  // Large building
-  ctx.fillStyle = '#8a7060';
-  ctx.fillRect(W/2 - 80, groundY - 60, 160, 64);
-  ctx.fillStyle = '#a08870';
-  ctx.fillRect(W/2 - 76, groundY - 56, 152, 56);
-  // Windows
-  ctx.fillStyle = '#87CEEB';
-  for (let wx = W/2 - 60; wx < W/2 + 60; wx += 28) {
-    ctx.fillRect(wx, groundY - 48, 16, 20);
-    ctx.strokeStyle = '#706050';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(wx, groundY - 48, 16, 20);
+function checkTableSpot() {
+  if (tableSetUp) return;
+  const sd = SCENE_DATA[state.location];
+  if (!sd.tableSpots) return;
+  for (const spot of sd.tableSpots) {
+    if (Math.abs(playerPos.x - spot.x) < 2 && Math.abs(playerPos.y - spot.y) < 2) {
+      // Show "set up table" prompt
+      const existing = $('#scene-table-prompt');
+      if (existing) existing.remove();
+      const prompt = document.createElement('div');
+      prompt.id = 'scene-table-prompt';
+      prompt.className = 'scene-prompt';
+      prompt.innerHTML = `<button class="magic-btn" onclick="Game.setUpTable(${spot.x},${spot.y})">Set Up Table Here 🔮</button>`;
+      $('#location-scene').appendChild(prompt);
+      return;
+    }
   }
-  // Door
-  ctx.fillStyle = '#5a3a1a';
-  ctx.fillRect(W/2 - 10, groundY - 24, 20, 28);
-  // Trees
-  spr(ctx, trees, 0, 0, 10, groundY - 32, 32, 32);
-  spr(ctx, trees, 0, 0, W - 42, groundY - 32, 32, 32);
-  spr(ctx, trees, 32, 0, 50, groundY - 24, 32, 32);
-  spr(ctx, trees, 32, 0, W - 82, groundY - 24, 32, 32);
 }
 
-function drawHarbor(ctx, W, H, water, exterior, hills, groundY) {
-  // Ocean
-  ctx.fillStyle = '#2878a8';
-  ctx.fillRect(0, groundY + 32, W, H - groundY - 32);
-  ctx.strokeStyle = 'rgba(255,255,255,0.2)';
-  for (let wy = groundY + 40; wy < H; wy += 10) {
-    ctx.beginPath();
-    for (let wx = 0; wx < W; wx += 4) ctx.lineTo(wx, wy + Math.sin(wx * 0.06) * 2);
-    ctx.stroke();
-  }
-  // Stone dock
-  ctx.fillStyle = '#808080';
-  ctx.fillRect(0, groundY, W, 36);
-  ctx.strokeStyle = '#606060';
-  for (let x = 0; x < W; x += TILE) {
-    ctx.strokeRect(x, groundY, TILE, 18);
-    ctx.strokeRect(x + 8, groundY + 18, TILE, 18);
-  }
-  // Boats from exterior
-  spr(ctx, exterior, 0, 128, 60, groundY + 36, 48, 32);
-  spr(ctx, exterior, 48, 128, 180, groundY + 40, 48, 32);
-  // Barrels and crates
-  spr(ctx, exterior, 240, 0, 20, groundY + 4, TILE, TILE);
-  spr(ctx, exterior, 256, 0, 36, groundY + 4, TILE, TILE);
-  spr(ctx, exterior, 240, 16, 280, groundY + 4, TILE, TILE);
-  // Distant hills
-  spr(ctx, hills, 0, 0, 0, groundY - 48, 176, 48);
-  spr(ctx, hills, 0, 0, 160, groundY - 48, 176, 48);
+function setUpTable(x, y) {
+  tablePos = {x, y};
+  tableSetUp = true;
+  const el = $('#scene-table-prompt');
+  if (el) el.remove();
+  showToast('Table set up! Clients may stop by...');
 }
 
-function drawPark(ctx, W, H, grass, nature, trees, groundY) {
-  // Grass ground
-  fillGround(ctx, W, H, groundY, '#5a9a4a');
-  // Winding path
-  ctx.fillStyle = '#d4c4a0';
-  ctx.beginPath();
-  ctx.moveTo(0, groundY + 40);
-  ctx.quadraticCurveTo(W * 0.3, groundY + 20, W * 0.5, groundY + 50);
-  ctx.quadraticCurveTo(W * 0.7, groundY + 80, W, groundY + 60);
-  ctx.lineTo(W, groundY + 70);
-  ctx.quadraticCurveTo(W * 0.7, groundY + 90, W * 0.5, groundY + 60);
-  ctx.quadraticCurveTo(W * 0.3, groundY + 30, 0, groundY + 50);
-  ctx.fill();
-  // Trees scattered
-  spr(ctx, trees, 0, 0, 20, groundY - 28, 32, 32);
-  spr(ctx, trees, 32, 0, 100, groundY - 20, 32, 32);
-  spr(ctx, trees, 64, 0, 200, groundY - 32, 32, 32);
-  spr(ctx, trees, 0, 0, 270, groundY - 24, 32, 32);
-  // Flowers/nature
-  for (let x = 30; x < W; x += 60) {
-    spr(ctx, nature, 32, 0, x + Math.random() * 20, groundY + 20 + Math.random() * 40, TILE, TILE);
-  }
-  // Bench (hand-drawn)
-  ctx.fillStyle = '#8b7355';
-  ctx.fillRect(W/2 - 16, groundY + 24, 32, 6);
-  ctx.fillRect(W/2 - 14, groundY + 30, 4, 8);
-  ctx.fillRect(W/2 + 10, groundY + 30, 4, 8);
-  ctx.fillStyle = '#a08860';
-  ctx.fillRect(W/2 - 16, groundY + 20, 32, 4);
+function stopScene() {
+  if (sceneLoop) { cancelAnimationFrame(sceneLoop); sceneLoop = null; }
+  sceneNPCs = [];
+  tableSetUp = false;
+  tablePos = null;
+}
+
+function startScene() {
+  stopScene();
+  const sd = SCENE_DATA[state.location];
+  if (!sd) return;
+  playerPos = {...sd.playerStart};
+  playerTarget = null;
+  playerDir = 2;
+  playerFrame = 0;
+  frameCount = 0;
+  npcSpawnTimer = 0;
+  if (sd.npcPaths.length) spawnNPCs();
+  sceneFrame();
 }
 
 function renderLocation() {
+  stopScene();
   const loc = LOCATIONS[state.location];
   const scene = $('#location-scene');
   const timeEmoji = TIME_EMOJI[state.timeOfDay];
   let actionsHTML = '';
 
-  if (loc.canRead && state.timeOfDay < 3) {
-    // Check permit
-    if (loc.permit && !state.permits[loc.permit]) {
-      actionsHTML += `<button class="magic-btn" onclick="Game.buyPermit('${loc.permit}')">Buy Permit ($${DATA.economy?.permit_costs?.[loc.permit] || 50})</button>`;
-    } else {
-      actionsHTML += `<button class="magic-btn" onclick="Game.startReading()">Do Reading 🃏</button>`;
-    }
+  if (loc.permit && !state.permits[loc.permit]) {
+    actionsHTML += `<button class="magic-btn" onclick="Game.buyPermit('${loc.permit}')">Buy Permit ($${DATA.economy?.permit_costs?.[loc.permit] || 50})</button>`;
   }
 
   if (state.location === 'apartment') {
@@ -990,12 +1291,31 @@ function renderLocation() {
   actionsHTML += `<button class="magic-btn" onclick="Game.advanceTime()">Wait (${getTimeName()} → ${TIME_NAMES[(state.timeOfDay + 1) % 4]})</button>`;
 
   scene.innerHTML = `
-    <canvas id="scene-canvas" width="320" height="160"></canvas>
-    <h2>${loc.name}</h2>
-    <div class="location-desc">${timeEmoji} ${getTimeName()} — ${loc.desc}</div>
+    <canvas id="scene-canvas" width="${SCENE_PX}" height="${SCENE_PH}"></canvas>
+    <div class="scene-hud">
+      <span>${timeEmoji} ${getTimeName()}</span>
+      <span>${loc.name}</span>
+    </div>
     <div class="location-actions">${actionsHTML}</div>
   `;
-  drawScene(state.location, state.timeOfDay);
+
+  // Tap to move
+  const canvas = $('#scene-canvas');
+  canvas.addEventListener('click', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = SCENE_PX / rect.width, scaleY = SCENE_PH / rect.height;
+    const cx = (e.clientX - rect.left) * scaleX;
+    const cy = (e.clientY - rect.top) * scaleY;
+    const tx = Math.floor(cx / TILE), ty = Math.floor(cy / TILE);
+    // Check walkability
+    const sd = SCENE_DATA[state.location];
+    const blocked = sd.solids.some(s => tx >= s[0] && tx < s[0] + s[2] && ty >= s[1] && ty < s[1] + s[3]);
+    if (!blocked && tx >= 0 && tx < SCENE_W && ty >= 0 && ty < SCENE_H) {
+      playerTarget = {x: tx, y: ty};
+    }
+  });
+
+  startScene();
 }
 
 // ============================================================
@@ -1708,6 +2028,7 @@ window.Game = {
   buyPermit,
   rest,
   advanceTime,
+  setUpTable,
 };
 
 // Boot
