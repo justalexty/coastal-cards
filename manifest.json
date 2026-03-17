@@ -1,0 +1,17 @@
+{
+  "name": "Coastal Cards — Witch Tarot",
+  "short_name": "Coastal Cards",
+  "description": "A cozy tarot card reading game. Build your tarot business in the coastal city of Coralhaven.",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "orientation": "landscape",
+  "theme_color": "#1a0a2e",
+  "background_color": "#0d0221",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔮</text></svg>",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
