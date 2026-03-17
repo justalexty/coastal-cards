@@ -122,7 +122,7 @@ const DEFAULT_STATE = {
   name: '',
   pronouns: 'she',
   customPronouns: null,
-  bodyType: 'androgynous',
+  bodyType: 'feminine',
   skinTone: 'medium',
   hairStyle: 'long_straight',
   hairColor: 'brown',
