@@ -1,220 +1,309 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0">
-		<title>Coastal Witch Tarot</title>
-		<style>
-html, body, #canvas {
-	margin: 0;
-	padding: 0;
-	border: 0;
-}
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="screen-orientation" content="landscape">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#1a0a2e">
+  <meta name="description" content="Coastal Witch Tarot — a cozy tarot card reading game">
+  <link rel="manifest" href="manifest.json">
+  <title>Coastal Cards — Witch Tarot</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔮</text></svg>">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <div id="particles"></div>
 
-body {
-	color: white;
-	background-color: black;
-	overflow: hidden;
-	touch-action: none;
-}
+    <!-- ===== TITLE SCREEN ===== -->
+    <div id="screen-title" class="screen active">
+      <div class="title-content">
+        <div class="crystal-ball">🔮</div>
+        <h1>Coastal Cards</h1>
+        <p class="subtitle">A Witch's Tarot Reading</p>
+        <div class="title-buttons">
+          <button id="btn-new-game" class="magic-btn">New Game</button>
+          <button id="btn-continue" class="magic-btn" style="display:none">Continue</button>
+        </div>
+      </div>
+    </div>
 
-#canvas {
-	display: block;
-}
+    <!-- ===== CHARACTER CREATION (Compact Mirror) ===== -->
+    <div id="screen-creation" class="screen">
+      <div class="compact-mirror">
+        <div class="mirror-frame">
+          <div class="mirror-title">✧ Magic Compact ✧</div>
+          <div id="creation-pages">
+            <!-- Page 1: Identity -->
+            <div class="creation-page active" data-page="0">
+              <h2>Who are you?</h2>
+              <label>Your witch name:
+                <input type="text" id="input-name" placeholder="Enter your name..." maxlength="20">
+              </label>
+              <div class="pronoun-section">
+                <p>Your pronouns:</p>
+                <div class="pronoun-grid">
+                  <button class="pronoun-btn" data-pronouns="she">She/Her</button>
+                  <button class="pronoun-btn" data-pronouns="he">He/Him</button>
+                  <button class="pronoun-btn selected" data-pronouns="they">They/Them</button>
+                  <button class="pronoun-btn" data-pronouns="custom">Custom</button>
+                </div>
+                <div id="custom-pronouns" style="display:none">
+                  <input type="text" id="custom-subject" placeholder="Subject (xe, fae...)">
+                  <input type="text" id="custom-object" placeholder="Object (xem, faer...)">
+                  <input type="text" id="custom-possessive" placeholder="Possessive (xyr, faer...)">
+                </div>
+              </div>
+            </div>
+            <!-- Page 2: Appearance -->
+            <div class="creation-page" data-page="1">
+              <h2>Your appearance</h2>
+              <div class="appearance-option">
+                <p>Body type:</p>
+                <div class="option-row">
+                  <button class="opt-btn" data-field="bodyType" data-val="feminine">Feminine</button>
+                  <button class="opt-btn selected" data-field="bodyType" data-val="androgynous">Androgynous</button>
+                  <button class="opt-btn" data-field="bodyType" data-val="masculine">Masculine</button>
+                </div>
+              </div>
+              <div class="appearance-option">
+                <p>Skin tone:</p>
+                <div class="option-row skin-tones">
+                  <button class="opt-btn color-swatch selected" data-field="skinTone" data-val="medium" style="background:#c4956a"></button>
+                  <button class="opt-btn color-swatch" data-field="skinTone" data-val="pale" style="background:#f5deb3"></button>
+                  <button class="opt-btn color-swatch" data-field="skinTone" data-val="light" style="background:#deb887"></button>
+                  <button class="opt-btn color-swatch" data-field="skinTone" data-val="tan" style="background:#a0764a"></button>
+                  <button class="opt-btn color-swatch" data-field="skinTone" data-val="dark" style="background:#6b4226"></button>
+                  <button class="opt-btn color-swatch" data-field="skinTone" data-val="deep" style="background:#3b1e08"></button>
+                </div>
+              </div>
+              <div class="appearance-option">
+                <p>Hair:</p>
+                <div class="option-row">
+                  <select id="sel-hairstyle">
+                    <option value="long_straight">Long Straight</option>
+                    <option value="long_wavy">Long Wavy</option>
+                    <option value="short_straight">Short Straight</option>
+                    <option value="short_wavy">Short Wavy</option>
+                    <option value="braids">Braids</option>
+                    <option value="bun">Bun</option>
+                    <option value="ponytail">Ponytail</option>
+                    <option value="buzzcut">Buzzcut</option>
+                    <option value="mohawk">Mohawk</option>
+                  </select>
+                  <select id="sel-haircolor">
+                    <option value="black">Black</option>
+                    <option value="brown">Brown</option>
+                    <option value="blonde">Blonde</option>
+                    <option value="red">Red</option>
+                    <option value="purple">Purple</option>
+                    <option value="blue">Blue</option>
+                    <option value="green">Green</option>
+                    <option value="white">White</option>
+                    <option value="pink">Pink</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <!-- Page 3: Outfit -->
+            <div class="creation-page" data-page="2">
+              <h2>Your style</h2>
+              <div class="appearance-option">
+                <p>Outfit:</p>
+                <div class="option-row wrap">
+                  <button class="opt-btn selected" data-field="outfit" data-val="traditional">Traditional</button>
+                  <button class="opt-btn" data-field="outfit" data-val="modern_witch">Modern Witch</button>
+                  <button class="opt-btn" data-field="outfit" data-val="casual">Casual</button>
+                  <button class="opt-btn" data-field="outfit" data-val="traveler">Traveler</button>
+                  <button class="opt-btn" data-field="outfit" data-val="punk_witch">Punk Witch</button>
+                </div>
+              </div>
+              <div class="appearance-option">
+                <p>Accessory:</p>
+                <div class="option-row wrap">
+                  <button class="opt-btn selected" data-field="accessory" data-val="none">None</button>
+                  <button class="opt-btn" data-field="accessory" data-val="glasses">Glasses</button>
+                  <button class="opt-btn" data-field="accessory" data-val="hat">Hat</button>
+                  <button class="opt-btn" data-field="accessory" data-val="scarf">Scarf</button>
+                  <button class="opt-btn" data-field="accessory" data-val="earrings">Earrings</button>
+                  <button class="opt-btn" data-field="accessory" data-val="necklace">Necklace</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="creation-nav">
+            <button id="btn-prev-page" class="nav-btn" disabled>← Back</button>
+            <span id="page-dots">● ○ ○</span>
+            <button id="btn-next-page" class="nav-btn">Next →</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
-#canvas:focus {
-	outline: none;
-}
+    <!-- ===== OPENING SEQUENCE ===== -->
+    <div id="screen-opening" class="screen">
+      <div class="opening-bg">
+        <div class="train-window"></div>
+        <div id="opening-dialogue" class="dialogue-box">
+          <p id="opening-text"></p>
+          <span class="continue-hint">tap to continue</span>
+        </div>
+      </div>
+    </div>
 
-#status, #status-splash, #status-progress {
-	position: absolute;
-	left: 0;
-	right: 0;
-}
+    <!-- ===== MAIN GAME HUD ===== -->
+    <div id="screen-game" class="screen">
+      <!-- Top HUD Bar -->
+      <div id="hud-bar">
+        <div class="hud-left">
+          <span id="hud-date">Mar 1</span>
+          <span id="hud-moon">🌑</span>
+          <span id="hud-holiday" class="hud-holiday"></span>
+        </div>
+        <div class="hud-center">
+          <span id="hud-location">Studio Apartment</span>
+        </div>
+        <div class="hud-right">
+          <span id="hud-money">$25</span>
+          <span id="hud-energy">⚡100</span>
+        </div>
+      </div>
 
-#status, #status-splash {
-	top: 0;
-	bottom: 0;
-}
+      <!-- Main game area -->
+      <div id="game-area">
+        <!-- Location scene rendered here -->
+        <div id="location-scene"></div>
+        
+        <!-- Interaction panel -->
+        <div id="interact-panel" style="display:none">
+          <div id="interact-content"></div>
+        </div>
+      </div>
 
-#status {
-	background-color: #242424;
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-	visibility: hidden;
-}
+      <!-- Bottom action bar -->
+      <div id="action-bar">
+        <button class="action-btn" id="btn-compact" title="Compact Mirror">🪞</button>
+        <button class="action-btn" id="btn-calendar" title="Calendar">📅</button>
+        <button class="action-btn" id="btn-location" title="Change Location">🗺️</button>
+        <button class="action-btn" id="btn-readings" title="Do Reading">🃏</button>
+        <button class="action-btn" id="btn-rest" title="Rest">😴</button>
+      </div>
 
-#status-splash {
-	max-height: 100%;
-	max-width: 100%;
-	margin: auto;
-}
+      <!-- Rent warning overlay -->
+      <div id="rent-warning" style="display:none">
+        <div class="rent-warning-inner">
+          <p id="rent-warning-text"></p>
+          <button class="magic-btn" id="btn-dismiss-rent">Okay</button>
+        </div>
+      </div>
+    </div>
 
-#status-splash.show-image--false {
-	display: none;
-}
+    <!-- ===== COMPACT MIRROR OVERLAY ===== -->
+    <div id="overlay-compact" class="overlay" style="display:none">
+      <div class="compact-mirror">
+        <div class="mirror-frame">
+          <div class="mirror-title">✧ Magic Compact ✧</div>
+          <button class="close-btn" id="btn-close-compact">✕</button>
+          <div class="compact-tabs">
+            <button class="tab-btn active" data-tab="messages">Messages</button>
+            <button class="tab-btn" data-tab="croneslist">Croneslist</button>
+            <button class="tab-btn" data-tab="styling">Styling</button>
+            <button class="tab-btn" data-tab="save">Save</button>
+          </div>
+          <div class="compact-body">
+            <div id="tab-messages" class="tab-content active">
+              <div id="message-list"></div>
+            </div>
+            <div id="tab-croneslist" class="tab-content">
+              <div class="cl-header">
+                <span class="cl-balance"></span>
+                <button id="btn-cl-sell" class="small-btn" style="display:none">Sell Broom</button>
+              </div>
+              <div id="cl-listings"></div>
+              <p id="cl-empty" style="display:none">No brooms available right now.<br>Check back soon!</p>
+            </div>
+            <div id="tab-styling" class="tab-content">
+              <p class="coming-soon">Styling available from character creation.<br>More options coming soon!</p>
+            </div>
+            <div id="tab-save" class="tab-content">
+              <button class="magic-btn" id="btn-save-game">Save Game</button>
+              <p id="save-status"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-#status-splash.fullsize--true {
-	height: 100%;
-	width: 100%;
-	object-fit: contain;
-}
+    <!-- ===== CALENDAR OVERLAY ===== -->
+    <div id="overlay-calendar" class="overlay" style="display:none">
+      <div class="calendar-panel">
+        <button class="close-btn" id="btn-close-calendar">✕</button>
+        <div id="calendar-header"></div>
+        <div id="calendar-moon"></div>
+        <div id="calendar-rent"></div>
+        <div id="calendar-grid"></div>
+        <div id="calendar-holiday"></div>
+      </div>
+    </div>
 
-#status-splash.use-filter--false {
-	image-rendering: pixelated;
-}
+    <!-- ===== LOCATION SELECT OVERLAY ===== -->
+    <div id="overlay-locations" class="overlay" style="display:none">
+      <div class="locations-panel">
+        <button class="close-btn" id="btn-close-locations">✕</button>
+        <h2>Choose Location</h2>
+        <div id="location-list"></div>
+      </div>
+    </div>
 
-#status-progress, #status-notice {
-	display: none;
-}
+    <!-- ===== TAROT READING SCREEN ===== -->
+    <div id="screen-reading" class="screen">
+      <div id="reading-top-bar">
+        <button class="nav-btn" id="btn-back-from-reading">← Back</button>
+        <div id="reading-type-label">Three Card Spread</div>
+        <div id="reading-moon-bonus"></div>
+      </div>
+      <div id="spread-labels">
+        <div class="spread-label">Past</div>
+        <div class="spread-label">Present</div>
+        <div class="spread-label">Future</div>
+      </div>
+      <div id="card-spread">
+        <!-- Cards injected by JS -->
+      </div>
+      <div id="reading-bottom">
+        <p id="reading-hint" class="hint">Tap a card to reveal...</p>
+        <button id="btn-finish-reading" class="magic-btn" style="display:none">Complete Reading</button>
+      </div>
+    </div>
 
-#status-progress {
-	bottom: 10%;
-	width: 50%;
-	margin: 0 auto;
-}
+    <!-- ===== DIALOGUE OVERLAY ===== -->
+    <div id="overlay-dialogue" class="overlay" style="display:none">
+      <div class="dialogue-box">
+        <div id="dialogue-speaker"></div>
+        <p id="dialogue-text"></p>
+        <div id="dialogue-choices"></div>
+        <span class="continue-hint" id="dialogue-continue" style="display:none">tap to continue</span>
+      </div>
+    </div>
 
-#status-notice {
-	background-color: #5b3943;
-	border-radius: 0.5rem;
-	border: 1px solid #9b3943;
-	color: #e0e0e0;
-	font-family: 'Noto Sans', 'Droid Sans', Arial, sans-serif;
-	line-height: 1.3;
-	margin: 0 2rem;
-	overflow: hidden;
-	padding: 1rem;
-	text-align: center;
-	z-index: 1;
-}
-		</style>
-		<link id="-gd-engine-icon" rel="icon" type="image/png" href="index.icon.png" />
-<link rel="apple-touch-icon" href="index.apple-touch-icon.png"/>
+    <!-- ===== NOTIFICATION TOAST ===== -->
+    <div id="toast" class="toast" style="display:none"></div>
 
-	</head>
-	<body>
-		<canvas id="canvas">
-			Your browser does not support the canvas tag.
-		</canvas>
+    <!-- ===== ACHIEVEMENT POPUP ===== -->
+    <div id="achievement-popup" class="achievement-popup" style="display:none">
+      <div class="achievement-inner">
+        <div class="achievement-icon">🏆</div>
+        <div class="achievement-text">
+          <div class="achievement-name"></div>
+          <div class="achievement-desc"></div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-		<noscript>
-			Your browser does not support JavaScript.
-		</noscript>
-
-		<div id="status">
-			<img id="status-splash" class="show-image--true fullsize--true use-filter--true" src="index.png" alt="">
-			<progress id="status-progress"></progress>
-			<div id="status-notice"></div>
-		</div>
-
-		<script src="index.js"></script>
-		<script>
-const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":187936,"index.wasm":37685705},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
-const GODOT_THREADS_ENABLED = false;
-const engine = new Engine(GODOT_CONFIG);
-
-(function () {
-	const statusOverlay = document.getElementById('status');
-	const statusProgress = document.getElementById('status-progress');
-	const statusNotice = document.getElementById('status-notice');
-
-	let initializing = true;
-	let statusMode = '';
-
-	function setStatusMode(mode) {
-		if (statusMode === mode || !initializing) {
-			return;
-		}
-		if (mode === 'hidden') {
-			statusOverlay.remove();
-			initializing = false;
-			return;
-		}
-		statusOverlay.style.visibility = 'visible';
-		statusProgress.style.display = mode === 'progress' ? 'block' : 'none';
-		statusNotice.style.display = mode === 'notice' ? 'block' : 'none';
-		statusMode = mode;
-	}
-
-	function setStatusNotice(text) {
-		while (statusNotice.lastChild) {
-			statusNotice.removeChild(statusNotice.lastChild);
-		}
-		const lines = text.split('\n');
-		lines.forEach((line) => {
-			statusNotice.appendChild(document.createTextNode(line));
-			statusNotice.appendChild(document.createElement('br'));
-		});
-	}
-
-	function displayFailureNotice(err) {
-		console.error(err);
-		if (err instanceof Error) {
-			setStatusNotice(err.message);
-		} else if (typeof err === 'string') {
-			setStatusNotice(err);
-		} else {
-			setStatusNotice('An unknown error occurred.');
-		}
-		setStatusMode('notice');
-		initializing = false;
-	}
-
-	const missing = Engine.getMissingFeatures({
-		threads: GODOT_THREADS_ENABLED,
-	});
-
-	if (missing.length !== 0) {
-		if (GODOT_CONFIG['serviceWorker'] && GODOT_CONFIG['ensureCrossOriginIsolationHeaders'] && 'serviceWorker' in navigator) {
-			let serviceWorkerRegistrationPromise;
-			try {
-				serviceWorkerRegistrationPromise = navigator.serviceWorker.getRegistration();
-			} catch (err) {
-				serviceWorkerRegistrationPromise = Promise.reject(new Error('Service worker registration failed.'));
-			}
-			// There's a chance that installing the service worker would fix the issue
-			Promise.race([
-				serviceWorkerRegistrationPromise.then((registration) => {
-					if (registration != null) {
-						return Promise.reject(new Error('Service worker already exists.'));
-					}
-					return registration;
-				}).then(() => engine.installServiceWorker()),
-				// For some reason, `getRegistration()` can stall
-				new Promise((resolve) => {
-					setTimeout(() => resolve(), 2000);
-				}),
-			]).then(() => {
-				// Reload if there was no error.
-				window.location.reload();
-			}).catch((err) => {
-				console.error('Error while registering service worker:', err);
-			});
-		} else {
-			// Display the message as usual
-			const missingMsg = 'Error\nThe following features required to run Godot projects on the Web are missing:\n';
-			displayFailureNotice(missingMsg + missing.join('\n'));
-		}
-	} else {
-		setStatusMode('progress');
-		engine.startGame({
-			'onProgress': function (current, total) {
-				if (current > 0 && total > 0) {
-					statusProgress.value = current;
-					statusProgress.max = total;
-				} else {
-					statusProgress.removeAttribute('value');
-					statusProgress.removeAttribute('max');
-				}
-			},
-		}).then(() => {
-			setStatusMode('hidden');
-		}, displayFailureNotice);
-	}
-}());
-		</script>
-	</body>
+  <script src="game.js"></script>
+</body>
 </html>
-
