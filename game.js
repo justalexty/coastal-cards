@@ -670,6 +670,304 @@ function renderGame() {
   renderLocation();
 }
 
+// ============================================================
+// SCENE RENDERER — pixel art locations from tilesets
+// ============================================================
+const TILE = 16;
+const SCENE_SHEETS = {};
+
+function loadSheet(name) {
+  if (SCENE_SHEETS[name]) return Promise.resolve(SCENE_SHEETS[name]);
+  return new Promise((res, rej) => {
+    const img = new Image();
+    img.onload = () => { SCENE_SHEETS[name] = img; res(img); };
+    img.onerror = rej;
+    img.src = `assets/scenes/${name}.png`;
+  });
+}
+
+function spr(ctx, sheet, sx, sy, dx, dy, sw, sh) {
+  sw = sw || TILE; sh = sh || TILE;
+  ctx.drawImage(sheet, sx, sy, sw, sh, dx, dy, sw, sh);
+}
+
+// Time-of-day overlays
+const TIME_TINTS = [
+  null,                            // morning — no tint
+  null,                            // afternoon — no tint
+  'rgba(255,140,60,0.15)',         // evening — warm orange
+  'rgba(20,10,50,0.45)',           // night — dark blue
+];
+
+async function drawScene(locationId, timeOfDay) {
+  const canvas = $('#scene-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  ctx.imageSmoothingEnabled = false;
+  const W = canvas.width, H = canvas.height;
+
+  // Load needed sheets
+  const [grass, water, houses, exterior, nature, trees, hills, furniture, furniture2, floors, furnState, doors, smallItems] = await Promise.all([
+    loadSheet('grass'), loadSheet('water'), loadSheet('houses'),
+    loadSheet('exterior'), loadSheet('nature'), loadSheet('trees2'),
+    loadSheet('hills'), loadSheet('furniture'), loadSheet('furniture2'),
+    loadSheet('TopDownHouse_FloorsAndWalls'), loadSheet('TopDownHouse_FurnitureState1'),
+    loadSheet('TopDownHouse_DoorsAndWindows'), loadSheet('TopDownHouse_SmallItems'),
+  ]);
+
+  ctx.clearRect(0, 0, W, H);
+
+  // Sky gradient
+  const skyColors = [
+    ['#87CEEB','#e0f0ff'],  // morning
+    ['#5eadd6','#87CEEB'],  // afternoon
+    ['#ff8855','#ffcc88'],  // evening
+    ['#0a0a2e','#1a1a4e'],  // night
+  ];
+  const [c1, c2] = skyColors[timeOfDay] || skyColors[0];
+  const skyGrad = ctx.createLinearGradient(0, 0, 0, H * 0.4);
+  skyGrad.addColorStop(0, c1);
+  skyGrad.addColorStop(1, c2);
+  ctx.fillStyle = skyGrad;
+  ctx.fillRect(0, 0, W, H * 0.4);
+
+  // Ground
+  const groundY = Math.floor(H * 0.4);
+  const scenes = {
+    apartment: () => drawApartment(ctx, W, H, floors, furnState, doors, smallItems, groundY),
+    boardwalk: () => drawBoardwalk(ctx, W, H, grass, water, exterior, nature, groundY),
+    market: () => drawMarket(ctx, W, H, grass, houses, exterior, groundY),
+    university: () => drawUniversity(ctx, W, H, grass, exterior, nature, trees, groundY),
+    harbor: () => drawHarbor(ctx, W, H, water, exterior, hills, groundY),
+    park: () => drawPark(ctx, W, H, grass, nature, trees, groundY),
+  };
+
+  if (scenes[locationId]) await scenes[locationId]();
+
+  // Time-of-day tint
+  const tint = TIME_TINTS[timeOfDay];
+  if (tint) {
+    ctx.fillStyle = tint;
+    ctx.fillRect(0, 0, W, H);
+  }
+
+  // Night: add stars
+  if (timeOfDay === 3) {
+    ctx.fillStyle = '#fff';
+    for (let i = 0; i < 20; i++) {
+      const sx = Math.random() * W, sy = Math.random() * groundY * 0.8;
+      ctx.globalAlpha = 0.3 + Math.random() * 0.7;
+      ctx.fillRect(sx, sy, 1, 1);
+    }
+    ctx.globalAlpha = 1;
+  }
+}
+
+function fillGround(ctx, W, H, groundY, color) {
+  ctx.fillStyle = color;
+  ctx.fillRect(0, groundY, W, H - groundY);
+}
+
+function tileRow(ctx, sheet, sx, sy, startX, y, count, tw, th) {
+  tw = tw || TILE; th = th || TILE;
+  for (let i = 0; i < count; i++) {
+    spr(ctx, sheet, sx, sy, startX + i * tw, y, tw, th);
+  }
+}
+
+function drawApartment(ctx, W, H, floors, furnState, doors, smallItems, groundY) {
+  // Indoor scene — wooden floor + walls
+  // Floor
+  ctx.fillStyle = '#b8956a';
+  ctx.fillRect(0, groundY, W, H - groundY);
+  // Floor planks
+  ctx.strokeStyle = '#a07850';
+  ctx.lineWidth = 1;
+  for (let y = groundY; y < H; y += TILE) {
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+  }
+  for (let x = 0; x < W; x += TILE * 2) {
+    ctx.beginPath(); ctx.moveTo(x, groundY); ctx.lineTo(x, H); ctx.stroke();
+  }
+  // Back wall
+  ctx.fillStyle = '#d4c4a8';
+  ctx.fillRect(0, 0, W, groundY + 8);
+  // Wallpaper stripe
+  ctx.fillStyle = '#c8b898';
+  ctx.fillRect(0, groundY - 12, W, 12);
+  // Window
+  ctx.fillStyle = '#87CEEB';
+  ctx.fillRect(W/2 - 24, 20, 48, 32);
+  ctx.strokeStyle = '#8b7355';
+  ctx.lineWidth = 3;
+  ctx.strokeRect(W/2 - 24, 20, 48, 32);
+  ctx.beginPath(); ctx.moveTo(W/2, 20); ctx.lineTo(W/2, 52); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(W/2 - 24, 36); ctx.lineTo(W/2 + 24, 36); ctx.stroke();
+  // Furniture from tilesheet
+  spr(ctx, furnState, 0, 0, 20, groundY + 8, 32, 48); // bed
+  spr(ctx, furnState, 48, 0, W - 60, groundY + 4, 32, 48); // bookshelf
+  spr(ctx, smallItems, 0, 0, W/2 + 40, groundY + 16, TILE, TILE); // small item
+  // Rug
+  ctx.fillStyle = 'rgba(140,60,80,0.4)';
+  ctx.fillRect(W/2 - 32, groundY + 32, 64, 32);
+  ctx.strokeStyle = 'rgba(180,80,100,0.5)';
+  ctx.strokeRect(W/2 - 32, groundY + 32, 64, 32);
+}
+
+function drawBoardwalk(ctx, W, H, grass, water, exterior, nature, groundY) {
+  // Ocean bottom half
+  ctx.fillStyle = '#3a8abf';
+  ctx.fillRect(0, H * 0.65, W, H * 0.35);
+  // Wave lines
+  ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+  ctx.lineWidth = 1;
+  for (let wy = H * 0.7; wy < H; wy += 12) {
+    ctx.beginPath();
+    for (let wx = 0; wx < W; wx += 4) {
+      ctx.lineTo(wx, wy + Math.sin(wx * 0.05) * 3);
+    }
+    ctx.stroke();
+  }
+  // Sandy ground
+  ctx.fillStyle = '#e8d5a8';
+  ctx.fillRect(0, groundY, W, H * 0.25);
+  // Boardwalk planks
+  ctx.fillStyle = '#a08860';
+  ctx.fillRect(0, groundY + 16, W, 40);
+  ctx.strokeStyle = '#8b7355';
+  ctx.lineWidth = 1;
+  for (let x = 0; x < W; x += 20) {
+    ctx.beginPath(); ctx.moveTo(x, groundY + 16); ctx.lineTo(x, groundY + 56); ctx.stroke();
+  }
+  // Railing
+  ctx.fillStyle = '#c4a870';
+  ctx.fillRect(0, groundY + 52, W, 4);
+  for (let x = 10; x < W; x += 30) {
+    ctx.fillRect(x, groundY + 40, 3, 16);
+  }
+  // Market stalls from exterior tileset
+  spr(ctx, exterior, 0, 0, 40, groundY - 16, 32, 32);
+  spr(ctx, exterior, 32, 0, 140, groundY - 16, 32, 32);
+  spr(ctx, exterior, 64, 0, 240, groundY - 16, 32, 32);
+  // Beach grass tufts
+  for (let x = 10; x < W; x += 50) {
+    spr(ctx, nature, 0, 0, x, groundY - 4, TILE, TILE);
+  }
+}
+
+function drawMarket(ctx, W, H, grass, houses, exterior, groundY) {
+  // Cobblestone ground
+  ctx.fillStyle = '#a09080';
+  ctx.fillRect(0, groundY, W, H - groundY);
+  ctx.strokeStyle = '#908070';
+  for (let y = groundY; y < H; y += TILE) {
+    for (let x = (y % 32 === 0 ? 0 : 8); x < W; x += TILE) {
+      ctx.strokeRect(x, y, TILE, TILE);
+    }
+  }
+  // Houses/shops in background
+  spr(ctx, houses, 0, 0, 10, groundY - 56, 64, 64);
+  spr(ctx, houses, 64, 0, 90, groundY - 56, 64, 64);
+  spr(ctx, houses, 128, 0, 180, groundY - 56, 64, 64);
+  // Market stalls
+  spr(ctx, exterior, 0, 0, 50, groundY + 8, 32, 32);
+  spr(ctx, exterior, 32, 0, 130, groundY + 8, 32, 32);
+  spr(ctx, exterior, 64, 0, 230, groundY + 8, 32, 32);
+  // Barrels from exterior
+  spr(ctx, exterior, 240, 0, 280, groundY + 16, TILE, TILE);
+  spr(ctx, exterior, 240, 0, 296, groundY + 16, TILE, TILE);
+}
+
+function drawUniversity(ctx, W, H, grass, exterior, nature, trees, groundY) {
+  // Grass ground
+  fillGround(ctx, W, H, groundY, '#6aaa5a');
+  // Path
+  ctx.fillStyle = '#c4b090';
+  ctx.fillRect(W/2 - 20, groundY, 40, H - groundY);
+  // Large building
+  ctx.fillStyle = '#8a7060';
+  ctx.fillRect(W/2 - 80, groundY - 60, 160, 64);
+  ctx.fillStyle = '#a08870';
+  ctx.fillRect(W/2 - 76, groundY - 56, 152, 56);
+  // Windows
+  ctx.fillStyle = '#87CEEB';
+  for (let wx = W/2 - 60; wx < W/2 + 60; wx += 28) {
+    ctx.fillRect(wx, groundY - 48, 16, 20);
+    ctx.strokeStyle = '#706050';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(wx, groundY - 48, 16, 20);
+  }
+  // Door
+  ctx.fillStyle = '#5a3a1a';
+  ctx.fillRect(W/2 - 10, groundY - 24, 20, 28);
+  // Trees
+  spr(ctx, trees, 0, 0, 10, groundY - 32, 32, 32);
+  spr(ctx, trees, 0, 0, W - 42, groundY - 32, 32, 32);
+  spr(ctx, trees, 32, 0, 50, groundY - 24, 32, 32);
+  spr(ctx, trees, 32, 0, W - 82, groundY - 24, 32, 32);
+}
+
+function drawHarbor(ctx, W, H, water, exterior, hills, groundY) {
+  // Ocean
+  ctx.fillStyle = '#2878a8';
+  ctx.fillRect(0, groundY + 32, W, H - groundY - 32);
+  ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+  for (let wy = groundY + 40; wy < H; wy += 10) {
+    ctx.beginPath();
+    for (let wx = 0; wx < W; wx += 4) ctx.lineTo(wx, wy + Math.sin(wx * 0.06) * 2);
+    ctx.stroke();
+  }
+  // Stone dock
+  ctx.fillStyle = '#808080';
+  ctx.fillRect(0, groundY, W, 36);
+  ctx.strokeStyle = '#606060';
+  for (let x = 0; x < W; x += TILE) {
+    ctx.strokeRect(x, groundY, TILE, 18);
+    ctx.strokeRect(x + 8, groundY + 18, TILE, 18);
+  }
+  // Boats from exterior
+  spr(ctx, exterior, 0, 128, 60, groundY + 36, 48, 32);
+  spr(ctx, exterior, 48, 128, 180, groundY + 40, 48, 32);
+  // Barrels and crates
+  spr(ctx, exterior, 240, 0, 20, groundY + 4, TILE, TILE);
+  spr(ctx, exterior, 256, 0, 36, groundY + 4, TILE, TILE);
+  spr(ctx, exterior, 240, 16, 280, groundY + 4, TILE, TILE);
+  // Distant hills
+  spr(ctx, hills, 0, 0, 0, groundY - 48, 176, 48);
+  spr(ctx, hills, 0, 0, 160, groundY - 48, 176, 48);
+}
+
+function drawPark(ctx, W, H, grass, nature, trees, groundY) {
+  // Grass ground
+  fillGround(ctx, W, H, groundY, '#5a9a4a');
+  // Winding path
+  ctx.fillStyle = '#d4c4a0';
+  ctx.beginPath();
+  ctx.moveTo(0, groundY + 40);
+  ctx.quadraticCurveTo(W * 0.3, groundY + 20, W * 0.5, groundY + 50);
+  ctx.quadraticCurveTo(W * 0.7, groundY + 80, W, groundY + 60);
+  ctx.lineTo(W, groundY + 70);
+  ctx.quadraticCurveTo(W * 0.7, groundY + 90, W * 0.5, groundY + 60);
+  ctx.quadraticCurveTo(W * 0.3, groundY + 30, 0, groundY + 50);
+  ctx.fill();
+  // Trees scattered
+  spr(ctx, trees, 0, 0, 20, groundY - 28, 32, 32);
+  spr(ctx, trees, 32, 0, 100, groundY - 20, 32, 32);
+  spr(ctx, trees, 64, 0, 200, groundY - 32, 32, 32);
+  spr(ctx, trees, 0, 0, 270, groundY - 24, 32, 32);
+  // Flowers/nature
+  for (let x = 30; x < W; x += 60) {
+    spr(ctx, nature, 32, 0, x + Math.random() * 20, groundY + 20 + Math.random() * 40, TILE, TILE);
+  }
+  // Bench (hand-drawn)
+  ctx.fillStyle = '#8b7355';
+  ctx.fillRect(W/2 - 16, groundY + 24, 32, 6);
+  ctx.fillRect(W/2 - 14, groundY + 30, 4, 8);
+  ctx.fillRect(W/2 + 10, groundY + 30, 4, 8);
+  ctx.fillStyle = '#a08860';
+  ctx.fillRect(W/2 - 16, groundY + 20, 32, 4);
+}
+
 function renderLocation() {
   const loc = LOCATIONS[state.location];
   const scene = $('#location-scene');
@@ -692,11 +990,12 @@ function renderLocation() {
   actionsHTML += `<button class="magic-btn" onclick="Game.advanceTime()">Wait (${getTimeName()} → ${TIME_NAMES[(state.timeOfDay + 1) % 4]})</button>`;
 
   scene.innerHTML = `
-    <div class="location-emoji">${loc.emoji}</div>
+    <canvas id="scene-canvas" width="320" height="160"></canvas>
     <h2>${loc.name}</h2>
     <div class="location-desc">${timeEmoji} ${getTimeName()} — ${loc.desc}</div>
     <div class="location-actions">${actionsHTML}</div>
   `;
+  drawScene(state.location, state.timeOfDay);
 }
 
 // ============================================================

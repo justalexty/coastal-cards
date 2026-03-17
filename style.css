@@ -320,7 +320,13 @@ h2 { font-family: 'Cinzel', serif; font-size: 1.1rem; color: var(--gold); margin
   align-items: center; justify-content: center; padding: 12px;
   text-align: center;
 }
-.location-emoji { font-size: 3rem; margin-bottom: 8px; }
+#scene-canvas {
+  width: 100%; max-width: 320px; height: auto; aspect-ratio: 2/1;
+  border-radius: 8px; border: 2px solid rgba(212,165,116,0.3);
+  image-rendering: pixelated; image-rendering: crisp-edges;
+  margin-bottom: 8px;
+}
+.location-emoji { display: none; }
 .location-desc { font-size: 0.8rem; color: var(--crystal); max-width: 400px; line-height: 1.4; margin-bottom: 10px; }
 .location-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
 
