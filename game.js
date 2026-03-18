@@ -96,6 +96,46 @@ async function loadAllData() {
   await Promise.all(promises);
 }
 
+// Major arcana image map
+const MAJOR_IMAGE_MAP = {
+  'The Fool': 'assets/cards/major_00_Fool.jpg',
+  'The Magician': 'assets/cards/major_01_Magician.jpg',
+  'The High Priestess': 'assets/cards/major_02_High_Priestess.jpg',
+  'The Empress': 'assets/cards/major_03_Empress.jpg',
+  'The Emperor': 'assets/cards/major_04_Emperor.jpg',
+  'The Hierophant': 'assets/cards/major_05_Hierophant.jpg',
+  'The Lovers': 'assets/cards/major_06_Lovers.jpg',
+  'The Chariot': 'assets/cards/major_07_Chariot.jpg',
+  'Strength': 'assets/cards/major_08_Strength.jpg',
+  'The Hermit': 'assets/cards/major_09_Hermit.jpg',
+  'Wheel of Fortune': 'assets/cards/major_10_Wheel.jpg',
+  'Justice': 'assets/cards/major_11_Justice.jpg',
+  'The Hanged Man': 'assets/cards/major_12_Hanged_Man.jpg',
+  'Death': 'assets/cards/major_13_Death.jpg',
+  'Temperance': 'assets/cards/major_14_Temperance.jpg',
+  'The Devil': 'assets/cards/major_15_Devil.jpg',
+  'The Tower': 'assets/cards/major_16_Tower.jpg',
+  'The Star': 'assets/cards/major_17_Star.jpg',
+  'The Moon': 'assets/cards/major_18_Moon.jpg',
+  'The Sun': 'assets/cards/major_19_Sun.jpg',
+  'Judgement': 'assets/cards/major_20_Judgement.jpg',
+  'The World': 'assets/cards/major_21_World.jpg',
+};
+
+// Minor arcana image helper
+function getMinorImagePath(name) {
+  // "Ace of Wands" -> "minor_Wands01.jpg", "Two of Cups" -> "minor_Cups02.jpg"
+  const rankMap = { Ace:1, Two:2, Three:3, Four:4, Five:5, Six:6, Seven:7, Eight:8, Nine:9, Ten:10, Page:11, Knight:12, Queen:13, King:14 };
+  const parts = name.split(' of ');
+  if (parts.length !== 2) return null;
+  const rank = rankMap[parts[0]];
+  const suit = parts[1];
+  // Pentacles -> Pents on Wikimedia
+  const suitFile = suit === 'Pentacles' ? 'Pents' : suit;
+  if (!rank) return null;
+  return `assets/cards/minor_${suitFile}${String(rank).padStart(2,'0')}.jpg`;
+}
+
 // Build the full 78-card deck
 function buildFullDeck() {
   const major = (DATA.tarotDeck.major_arcana || []).map(c => ({
@@ -107,8 +147,12 @@ function buildFullDeck() {
     reversed_meaning: c.reversed_meaning,
     visual_description: c.visual_description || '',
     number: c.number,
+    image: MAJOR_IMAGE_MAP[c.name] || null,
   }));
-  const minor = generateMinorArcana();
+  const minor = generateMinorArcana().map(c => ({
+    ...c,
+    image: getMinorImagePath(c.name),
+  }));
   return [...major, ...minor];
 }
 
@@ -332,16 +376,103 @@ const LOCATIONS = {
 // ============================================================
 // ECONOMY
 // ============================================================
-function calculateReadingIncome() {
-  const eco = DATA.economy?.reading_prices?.three_card || { base: 15, reputation_multiplier: 1.0 };
-  const base = eco.base;
-  const repLevel = state.reputation / 20; // 0-5
-  const repBonus = repLevel * eco.reputation_multiplier;
+// Reading types
+const READING_TYPES = {
+  single: { name: 'Single Card', cardCount: 1, basePrice: 8, labels: ['Guidance'], minRep: 0 },
+  three_card: { name: 'Three Card', cardCount: 3, basePrice: 15, labels: ['Past', 'Present', 'Future'], minRep: 0 },
+  celtic_cross: { name: 'Celtic Cross', cardCount: 6, basePrice: 30, labels: ['Present', 'Challenge', 'Past', 'Future', 'Above', 'Below'], minRep: 30 },
+};
+
+let currentReadingType = 'three_card';
+
+function calculateReadingIncome(type) {
+  type = type || currentReadingType;
+  const rt = READING_TYPES[type] || READING_TYPES.three_card;
+  const base = rt.basePrice;
+  const repLevel = state.reputation / 20;
+  const repBonus = repLevel * 1.0;
   const moonBonus = getMoonBonus();
   const holidayBonus = getHolidayBonus();
   const loc = LOCATIONS[state.location];
-  const touristMarkup = loc?.clientType === 'tourist' ? (eco.tourist_markup || 5) : 0;
+  const touristMarkup = loc?.clientType === 'tourist' ? 5 : 0;
   return Math.round((base + repBonus + touristMarkup) * moonBonus * holidayBonus);
+}
+
+// NPC reading request dialog
+function showNPCReadingRequest() {
+  const loc = LOCATIONS[state.location];
+  if (!loc.canRead) { showToast("Can't do readings here!"); return; }
+  if (loc.permit && !state.permits[loc.permit]) { showToast('You need a permit for this location!'); return; }
+  if (state.energy < 20) { showToast('Too tired for a reading! Rest first.'); return; }
+  if (state.timeOfDay >= 3) { showToast("It's too late for readings. Rest and try tomorrow."); return; }
+
+  // Determine NPC type and preferred reading
+  const clientType = loc.clientType || 'tourist';
+  const clientLabels = { tourist: 'tourist', student: 'student', local: 'local', sailor: 'sailor', family: 'family member' };
+  const clientLabel = clientLabels[clientType] || 'stranger';
+
+  // Weight reading type by client and time
+  let typeWeights;
+  if (clientType === 'tourist') {
+    typeWeights = { single: 0.5, three_card: 0.4, celtic_cross: 0.1 };
+  } else if (clientType === 'student') {
+    typeWeights = { single: 0.15, three_card: 0.45, celtic_cross: 0.4 };
+  } else {
+    typeWeights = { single: 0.3, three_card: 0.5, celtic_cross: 0.2 };
+  }
+
+  // Evening = more deep readings
+  if (state.timeOfDay >= 2) {
+    typeWeights.celtic_cross += 0.15;
+    typeWeights.single -= 0.1;
+  }
+
+  // Filter out celtic cross if rep too low
+  if (state.reputation < 30) {
+    typeWeights.three_card += typeWeights.celtic_cross;
+    typeWeights.celtic_cross = 0;
+  }
+
+  // Pick weighted random
+  const rand = Math.random();
+  let cumulative = 0;
+  let chosenType = 'three_card';
+  for (const [type, weight] of Object.entries(typeWeights)) {
+    cumulative += weight;
+    if (rand < cumulative) { chosenType = type; break; }
+  }
+
+  const rt = READING_TYPES[chosenType];
+  const price = calculateReadingIncome(chosenType);
+
+  // Show dialog
+  const overlay = $('#overlay-dialogue');
+  const speaker = $('#dialogue-speaker');
+  const text = $('#dialogue-text');
+  const choices = $('#dialogue-choices');
+  const continueHint = $('#dialogue-continue');
+
+  speaker.textContent = '🃏 Reading Request';
+  text.textContent = `A ${clientLabel} would like a ${rt.name} reading. ($${price})`;
+  continueHint.style.display = 'none';
+
+  choices.innerHTML = `
+    <button onclick="Game.acceptReading('${chosenType}')">Accept ✓</button>
+    <button onclick="Game.declineReading()">Decline ✕</button>
+  `;
+
+  overlay.style.display = 'flex';
+}
+
+function acceptReading(type) {
+  hideOverlay('dialogue');
+  currentReadingType = type;
+  startReadingWithType(type);
+}
+
+function declineReading() {
+  hideOverlay('dialogue');
+  showToast('You declined the reading.');
 }
 
 function handleRent() {
@@ -673,11 +804,11 @@ function renderGame() {
 // ============================================================
 // INTERACTIVE SCENE ENGINE
 // ============================================================
-const TILE = 16;
+const TILE = 32;
 const SCENE_W = 20; // tiles wide
 const SCENE_H = 12; // tiles tall
-const SCENE_PX = SCENE_W * TILE; // 320
-const SCENE_PH = SCENE_H * TILE; // 192
+const SCENE_PX = SCENE_W * TILE; // 640
+const SCENE_PH = SCENE_H * TILE; // 384
 const SCENE_SHEETS = {};
 let sceneLoop = null;
 let sceneNPCs = [];
@@ -715,7 +846,7 @@ const TIME_TINTS = [
 const SCENE_DATA = {
   apartment: {
     ground: '#b8956a', wall: '#d4c4a8',
-    solids: [[0,0,3,3],[17,0,3,3],[8,0,4,2]], // furniture blocks
+    solids: [[0,0,3,3],[16,0,4,3],[8,0,4,2]], // furniture blocks
     tableSpots: [], // can't read at home
     npcPaths: [],
     playerStart: {x:10,y:8},
@@ -729,7 +860,7 @@ const SCENE_DATA = {
     npcPaths: [
       {spawn:{x:-1,y:6},dest:{x:21,y:6}},
       {spawn:{x:21,y:7},dest:{x:-1,y:7}},
-      {spawn:{x:-1,y:4},dest:{x:21,y:4}},
+      {spawn:{x:-1,y:5},dest:{x:21,y:5}},
     ],
     playerStart: {x:10,y:6},
     draw: 'boardwalk',
@@ -771,7 +902,7 @@ const SCENE_DATA = {
   },
   park: {
     ground: '#5a9a4a',
-    solids: [[1,1,2,2],[12,2,2,2],[17,1,2,2],[6,9,2,2]], // trees
+    solids: [[1,1,2,2],[12,1,2,2],[17,1,2,2],[6,9,2,2]], // trees
     tableSpots: [{x:8,y:5,label:'By the bench'},{x:15,y:7,label:'Under the tree'}],
     npcPaths: [
       {spawn:{x:-1,y:5},dest:{x:21,y:5}},
@@ -843,14 +974,8 @@ class NPC {
         this.state = 'reading';
         this.waitTimer = 120 + Math.random() * 180; // wait 2-5 sec
         this.dir = 1; // face left toward table
-        // Show reading prompt!
-        if (!$('#scene-reading-prompt')) {
-          const prompt = document.createElement('div');
-          prompt.id = 'scene-reading-prompt';
-          prompt.className = 'scene-prompt';
-          prompt.innerHTML = `<button class="magic-btn" onclick="Game.startReading()">🃏 Do Reading</button>`;
-          $('#location-scene').appendChild(prompt);
-        }
+        // Show NPC reading request dialog
+        showNPCReadingRequest();
         return;
       }
       const mx = (dx / dist) * this.speed * 0.7;
@@ -863,7 +988,7 @@ class NPC {
       this.waitTimer--;
       if (this.waitTimer <= 0) {
         this.state = 'leaving';
-        this.destX = (Math.random() < 0.5 ? -2 : 22) * TILE;
+        this.destX = (Math.random() < 0.5 ? -2 : SCENE_W + 2) * TILE;
         this.destY = this.y;
         const el = $('#scene-reading-prompt');
         if (el) el.remove();
@@ -966,67 +1091,78 @@ async function drawSceneBG(ctx) {
     loadSheet('TopDownHouse_FloorsAndWalls'),
   ]);
 
+  // Helper to draw tileset sprite scaled 2x
+  function spr2(sheet, sx, sy, dx, dy, sw, sh) {
+    sw = sw || 16; sh = sh || 16;
+    ctx.drawImage(sheet, sx, sy, sw, sh, dx, dy, sw * 2, sh * 2);
+  }
+
   // Fill ground
   ctx.fillStyle = sd.ground;
   ctx.fillRect(0, 0, SCENE_PX, SCENE_PH);
 
   const d = sd.draw;
+  const T = TILE; // 32
 
   if (d === 'apartment') {
     // Wooden floor planks
     ctx.strokeStyle = '#a07850'; ctx.lineWidth = 1;
-    for (let y = 0; y < SCENE_PH; y += TILE) {
+    for (let y = 0; y < SCENE_PH; y += T) {
       ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(SCENE_PX, y); ctx.stroke();
     }
-    for (let x = 0; x < SCENE_PX; x += TILE * 2) {
+    for (let x = 0; x < SCENE_PX; x += T * 2) {
       ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, SCENE_PH); ctx.stroke();
     }
     // Back wall
     ctx.fillStyle = '#d4c4a8';
-    ctx.fillRect(0, 0, SCENE_PX, TILE * 3);
+    ctx.fillRect(0, 0, SCENE_PX, T * 3);
     ctx.fillStyle = '#c8b898';
-    ctx.fillRect(0, TILE * 3 - 8, SCENE_PX, 8);
-    // Window
+    ctx.fillRect(0, T * 3 - 8, SCENE_PX, 8);
+    // Windows
     ctx.fillStyle = '#87CEEB';
-    ctx.fillRect(TILE * 8, TILE, TILE * 4, TILE * 1.5);
+    ctx.fillRect(T * 5, T * 0.5, T * 3, T * 1.5);
     ctx.strokeStyle = '#8b7355'; ctx.lineWidth = 2;
-    ctx.strokeRect(TILE * 8, TILE, TILE * 4, TILE * 1.5);
+    ctx.strokeRect(T * 5, T * 0.5, T * 3, T * 1.5);
+    ctx.fillStyle = '#87CEEB';
+    ctx.fillRect(T * 12, T * 0.5, T * 3, T * 1.5);
+    ctx.strokeRect(T * 12, T * 0.5, T * 3, T * 1.5);
     // Bed (top-left)
-    spr(ctx, furnState, 0, 0, 0, TILE, 32, 48);
+    spr2(furnState, 0, 0, T, T * 1.5, 32, 48);
     // Bookshelf (top-right)
-    spr(ctx, furnState, 48, 0, TILE * 17, TILE, 32, 48);
+    spr2(furnState, 48, 0, T * 17, T * 1.5, 32, 48);
     // Rug
     ctx.fillStyle = 'rgba(140,60,80,0.35)';
-    ctx.fillRect(TILE * 7, TILE * 6, TILE * 6, TILE * 4);
+    ctx.fillRect(T * 6, T * 5, T * 8, T * 4);
   }
 
   if (d === 'boardwalk') {
     // Top: stalls/buildings
     ctx.fillStyle = '#c4a870';
-    ctx.fillRect(0, 0, SCENE_PX, TILE * 2);
-    spr(ctx, exterior, 0, 0, TILE * 2, 0, 32, 32);
-    spr(ctx, exterior, 32, 0, TILE * 8, 0, 32, 32);
-    spr(ctx, exterior, 64, 0, TILE * 14, 0, 32, 32);
+    ctx.fillRect(0, 0, SCENE_PX, T * 2);
+    spr2(exterior, 0, 0, T * 2, 0, 32, 32);
+    spr2(exterior, 32, 0, T * 7, 0, 32, 32);
+    spr2(exterior, 64, 0, T * 11, 0, 32, 32);
+    spr2(exterior, 0, 0, T * 16, 0, 32, 32);
     // Boardwalk planks (middle)
     ctx.fillStyle = '#a08860';
-    ctx.fillRect(0, TILE * 3, SCENE_PX, TILE * 5);
+    ctx.fillRect(0, T * 3, SCENE_PX, T * 5);
     ctx.strokeStyle = '#8b7355'; ctx.lineWidth = 1;
-    for (let x = 0; x < SCENE_PX; x += 20) {
-      ctx.beginPath(); ctx.moveTo(x, TILE * 3); ctx.lineTo(x, TILE * 8); ctx.stroke();
+    for (let x = 0; x < SCENE_PX; x += 24) {
+      ctx.beginPath(); ctx.moveTo(x, T * 3); ctx.lineTo(x, T * 8); ctx.stroke();
     }
     // Railing
     ctx.fillStyle = '#c4a870';
-    ctx.fillRect(0, TILE * 8, SCENE_PX, 3);
-    for (let x = 8; x < SCENE_PX; x += 24) ctx.fillRect(x, TILE * 7.5, 2, TILE);
+    ctx.fillRect(0, T * 8, SCENE_PX, 4);
+    for (let x = 10; x < SCENE_PX; x += 30) ctx.fillRect(x, T * 7.5, 3, T);
     // Sand + ocean
     ctx.fillStyle = '#e8d5a8';
-    ctx.fillRect(0, TILE * 8 + 3, SCENE_PX, TILE);
+    ctx.fillRect(0, T * 8 + 4, SCENE_PX, T * 1);
     ctx.fillStyle = '#3a8abf';
-    ctx.fillRect(0, TILE * 10, SCENE_PX, TILE * 2);
+    ctx.fillRect(0, T * 10, SCENE_PX, T * 2);
     ctx.strokeStyle = 'rgba(255,255,255,0.3)'; ctx.lineWidth = 1;
-    for (let wy = TILE * 10; wy < SCENE_PH; wy += 8) {
+    for (let wy = T * 10; wy < SCENE_PH; wy += 10) {
       ctx.beginPath();
-      for (let wx = 0; wx < SCENE_PX; wx += 4) ctx.lineTo(wx, wy + Math.sin(wx * 0.08 + frameCount * 0.02) * 2);
+      for (let wx = 0; wx < SCENE_PX; wx += 4) ctx.lineTo(wx, wy + Math.sin(wx * 0.06 + frameCount * 0.02) * 3);
       ctx.stroke();
     }
   }
@@ -1034,95 +1170,98 @@ async function drawSceneBG(ctx) {
   if (d === 'market') {
     // Cobblestone
     ctx.strokeStyle = '#908070'; ctx.lineWidth = 0.5;
-    for (let y = 0; y < SCENE_PH; y += TILE)
-      for (let x = (y % 32 === 0 ? 0 : 8); x < SCENE_PX; x += TILE)
-        ctx.strokeRect(x, y, TILE, TILE);
+    for (let y = 0; y < SCENE_PH; y += T)
+      for (let x = (y % (T*2) === 0 ? 0 : T/2); x < SCENE_PX; x += T)
+        ctx.strokeRect(x, y, T, T);
     // Back wall with shops
     ctx.fillStyle = '#706050';
-    ctx.fillRect(0, 0, SCENE_PX, TILE * 2);
-    spr(ctx, houses, 0, 0, 0, -16, 64, 64);
-    spr(ctx, houses, 64, 0, TILE * 5, -16, 64, 64);
-    spr(ctx, houses, 128, 0, TILE * 10, -16, 64, 64);
-    spr(ctx, houses, 0, 64, TILE * 15, -16, 64, 64);
+    ctx.fillRect(0, 0, SCENE_PX, T * 2);
+    spr2(houses, 0, 0, 0, -16, 64, 64);
+    spr2(houses, 64, 0, T * 5, -16, 64, 64);
+    spr2(houses, 128, 0, T * 10, -16, 64, 64);
+    spr2(houses, 0, 64, T * 15, -16, 64, 64);
     // Stalls
-    spr(ctx, exterior, 0, 0, TILE * 2, TILE * 3, 32, 32);
-    spr(ctx, exterior, 32, 0, TILE * 8, TILE * 3, 32, 32);
-    spr(ctx, exterior, 64, 0, TILE * 15, TILE * 3, 32, 32);
+    spr2(exterior, 0, 0, T * 2, T * 3, 32, 32);
+    spr2(exterior, 32, 0, T * 8, T * 3, 32, 32);
+    spr2(exterior, 64, 0, T * 15, T * 3, 32, 32);
   }
 
   if (d === 'university') {
     // Building (top)
     ctx.fillStyle = '#8a7060';
-    ctx.fillRect(TILE * 3, 0, TILE * 14, TILE * 3);
+    ctx.fillRect(T * 2, 0, T * 16, T * 3);
     ctx.fillStyle = '#a08870';
-    ctx.fillRect(TILE * 3 + 2, 2, TILE * 14 - 4, TILE * 3 - 4);
+    ctx.fillRect(T * 2 + 2, 2, T * 16 - 4, T * 3 - 4);
     ctx.fillStyle = '#87CEEB';
-    for (let wx = TILE * 4; wx < TILE * 16; wx += TILE * 2) {
-      ctx.fillRect(wx, TILE, TILE * 1.2, TILE * 1.2);
+    for (let wx = T * 4; wx < T * 16; wx += T * 2) {
+      ctx.fillRect(wx, T * 0.5, T * 1.2, T * 1.2);
     }
     ctx.fillStyle = '#5a3a1a';
-    ctx.fillRect(TILE * 9.5, TILE * 1.5, TILE * 1.2, TILE * 1.5);
+    ctx.fillRect(T * 9, T * 1.5, T * 2, T * 1.5);
     // Stone path
     ctx.fillStyle = '#c4b090';
-    ctx.fillRect(TILE * 9, TILE * 3, TILE * 2, SCENE_PH);
+    ctx.fillRect(T * 8, T * 3, T * 4, SCENE_PH);
     // Trees (sides)
-    spr(ctx, trees, 0, 0, 0, TILE * 2, 32, 32);
-    spr(ctx, trees, 0, 0, TILE * 18, TILE * 2, 32, 32);
-    spr(ctx, trees, 32, 0, 0, TILE * 7, 32, 32);
-    spr(ctx, trees, 32, 0, TILE * 18, TILE * 7, 32, 32);
+    spr2(trees, 0, 0, 0, T * 2, 32, 32);
+    spr2(trees, 0, 0, T * 18, T * 2, 32, 32);
+    spr2(trees, 32, 0, 0, T * 7, 32, 32);
+    spr2(trees, 32, 0, T * 18, T * 7, 32, 32);
   }
 
   if (d === 'harbor') {
     // Stone dock (top part)
     ctx.fillStyle = '#808080';
-    ctx.fillRect(0, 0, SCENE_PX, TILE * 9);
+    ctx.fillRect(0, 0, SCENE_PX, T * 9);
     ctx.strokeStyle = '#606060'; ctx.lineWidth = 0.5;
-    for (let y = 0; y < TILE * 9; y += TILE)
-      for (let x = (y % 32 === 0 ? 0 : 8); x < SCENE_PX; x += TILE)
-        ctx.strokeRect(x, y, TILE, TILE);
+    for (let y = 0; y < T * 9; y += T)
+      for (let x = (y % (T*2) === 0 ? 0 : T/2); x < SCENE_PX; x += T)
+        ctx.strokeRect(x, y, T, T);
     // Crates/barrels
-    spr(ctx, exterior, 240, 0, TILE, TILE * 2, TILE, TILE);
-    spr(ctx, exterior, 256, 0, TILE * 2, TILE * 2, TILE, TILE);
-    spr(ctx, exterior, 240, 0, TILE * 17, TILE * 3, TILE, TILE);
+    spr2(exterior, 240, 0, T * 1.5, T * 2, 16, 16);
+    spr2(exterior, 256, 0, T * 2.5, T * 2, 16, 16);
+    spr2(exterior, 240, 0, T * 16, T * 3, 16, 16);
+    spr2(exterior, 256, 0, T * 17, T * 3, 16, 16);
     // Ocean
     ctx.fillStyle = '#2878a8';
-    ctx.fillRect(0, TILE * 9, SCENE_PX, TILE * 3);
+    ctx.fillRect(0, T * 9, SCENE_PX, T * 3);
     ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.lineWidth = 1;
-    for (let wy = TILE * 9; wy < SCENE_PH; wy += 8) {
+    for (let wy = T * 9; wy < SCENE_PH; wy += 10) {
       ctx.beginPath();
-      for (let wx = 0; wx < SCENE_PX; wx += 4) ctx.lineTo(wx, wy + Math.sin(wx * 0.06 + frameCount * 0.015) * 2);
+      for (let wx = 0; wx < SCENE_PX; wx += 4) ctx.lineTo(wx, wy + Math.sin(wx * 0.05 + frameCount * 0.015) * 3);
       ctx.stroke();
     }
     // Dock edge
     ctx.fillStyle = '#6a6a6a';
-    ctx.fillRect(0, TILE * 8.5, SCENE_PX, TILE * 0.5);
+    ctx.fillRect(0, T * 8.5, SCENE_PX, T * 0.5);
   }
 
   if (d === 'park') {
     // Winding path
     ctx.fillStyle = '#d4c4a0';
     ctx.beginPath();
-    ctx.moveTo(0, TILE * 5);
-    ctx.quadraticCurveTo(TILE * 6, TILE * 3, TILE * 10, TILE * 6);
-    ctx.quadraticCurveTo(TILE * 14, TILE * 9, TILE * 20, TILE * 7);
-    ctx.lineTo(TILE * 20, TILE * 8);
-    ctx.quadraticCurveTo(TILE * 14, TILE * 10, TILE * 10, TILE * 7);
-    ctx.quadraticCurveTo(TILE * 6, TILE * 4, 0, TILE * 6);
+    ctx.moveTo(0, T * 4.5);
+    ctx.quadraticCurveTo(T * 5, T * 3, T * 10, T * 6);
+    ctx.quadraticCurveTo(T * 15, T * 9, T * 20, T * 7);
+    ctx.lineTo(T * 20, T * 7.5);
+    ctx.quadraticCurveTo(T * 15, T * 9.5, T * 10, T * 6.5);
+    ctx.quadraticCurveTo(T * 5, T * 3.5, 0, T * 5);
     ctx.fill();
     // Trees
-    spr(ctx, trees, 0, 0, TILE, TILE, 32, 32);
-    spr(ctx, trees, 32, 0, TILE * 12, TILE * 2, 32, 32);
-    spr(ctx, trees, 0, 0, TILE * 17, TILE, 32, 32);
-    spr(ctx, trees, 32, 0, TILE * 6, TILE * 9, 32, 32);
+    spr2(trees, 0, 0, T, T, 32, 32);
+    spr2(trees, 32, 0, T * 12, T * 1, 32, 32);
+    spr2(trees, 0, 0, T * 17, T, 32, 32);
+    spr2(trees, 32, 0, T * 6, T * 9, 32, 32);
+    spr2(trees, 0, 0, T * 3, T * 9.5, 32, 32);
+    spr2(trees, 32, 0, T * 17, T * 8, 32, 32);
     // Flowers
-    for (let i = 0; i < 5; i++) {
-      spr(ctx, nature, 32, 0, TILE * (3 + i * 3.5), TILE * (5 + (i % 3)), TILE, TILE);
+    for (let i = 0; i < 6; i++) {
+      spr2(nature, 32, 0, T * (2 + i * 3), T * (4 + (i % 3)), 16, 16);
     }
     // Bench
     ctx.fillStyle = '#8b7355';
-    ctx.fillRect(TILE * 8 - 8, TILE * 5, 32, 5);
-    ctx.fillRect(TILE * 8 - 6, TILE * 5 + 5, 4, 6);
-    ctx.fillRect(TILE * 8 + 18, TILE * 5 + 5, 4, 6);
+    ctx.fillRect(T * 8 - 10, T * 5, 48, 8);
+    ctx.fillRect(T * 8 - 8, T * 5 + 8, 6, 10);
+    ctx.fillRect(T * 8 + 30, T * 5 + 8, 6, 10);
   }
 
   // Table spots — show indicators
@@ -1131,30 +1270,62 @@ async function drawSceneBG(ctx) {
     ctx.globalAlpha = 0.4 + Math.sin(frameCount * 0.05) * 0.2;
     sd2.tableSpots.forEach(spot => {
       ctx.fillStyle = '#d4a574';
-      ctx.fillRect(spot.x * TILE, spot.y * TILE, TILE * 2, TILE * 2);
+      ctx.fillRect(spot.x * T, spot.y * T, T * 2, T * 2);
       ctx.strokeStyle = '#a07850';
-      ctx.lineWidth = 1;
-      ctx.strokeRect(spot.x * TILE, spot.y * TILE, TILE * 2, TILE * 2);
+      ctx.lineWidth = 2;
+      ctx.strokeRect(spot.x * T, spot.y * T, T * 2, T * 2);
     });
     ctx.globalAlpha = 1;
   }
 
-  // Draw placed table
+  // Draw placed table with tarot theme
   if (tableSetUp && tablePos) {
-    const tx = tablePos.x * TILE, ty = tablePos.y * TILE;
-    // Table
+    const tx = tablePos.x * T, ty = tablePos.y * T;
+    const tw = T * 3, th = T * 2;
+    // Table legs
+    ctx.fillStyle = '#5a3a1a';
+    ctx.fillRect(tx + 4, ty + th - 8, 8, 12);
+    ctx.fillRect(tx + tw - 12, ty + th - 8, 8, 12);
+    // Table top
     ctx.fillStyle = '#8b6a3a';
-    ctx.fillRect(tx, ty + 4, TILE * 2, TILE - 4);
+    ctx.fillRect(tx, ty + 8, tw, th - 12);
     ctx.fillStyle = '#a07850';
-    ctx.fillRect(tx + 1, ty, TILE * 2 - 2, 5);
-    // Cloth
+    ctx.fillRect(tx + 2, ty, tw - 4, 10);
+    // Purple/gold draped cloth
     ctx.fillStyle = '#4a2060';
-    ctx.fillRect(tx + 2, ty + 1, TILE * 2 - 4, 3);
-    // Crystal ball
-    ctx.fillStyle = 'rgba(180,160,220,0.7)';
-    ctx.beginPath();
-    ctx.arc(tx + TILE, ty + 3, 3, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.fillRect(tx + 4, ty + 2, tw - 8, th - 8);
+    // Gold trim on cloth
+    ctx.strokeStyle = '#d4a574';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(tx + 6, ty + 4, tw - 12, th - 12);
+    // Gold diamond pattern on cloth
+    ctx.fillStyle = '#d4a574';
+    for (let dx = 12; dx < tw - 12; dx += 14) {
+      ctx.fillRect(tx + dx, ty + th/2 - 2, 4, 4);
+    }
+    // Fanned tarot cards on table
+    ctx.fillStyle = '#f5e6d3';
+    for (let i = -2; i <= 2; i++) {
+      ctx.save();
+      ctx.translate(tx + tw/2, ty + th/2 - 4);
+      ctx.rotate(i * 0.2);
+      ctx.fillRect(-5, -10, 10, 18);
+      ctx.strokeStyle = '#d4a574';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(-5, -10, 10, 18);
+      ctx.restore();
+    }
+    // Candles on either side
+    ctx.fillStyle = '#f5e6d3';
+    ctx.fillRect(tx + 6, ty - 4, 6, 12);
+    ctx.fillRect(tx + tw - 12, ty - 4, 6, 12);
+    // Candle flames
+    ctx.fillStyle = '#ffb347';
+    ctx.beginPath(); ctx.arc(tx + 9, ty - 6, 4, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(tx + tw - 9, ty - 6, 4, 0, Math.PI * 2); ctx.fill();
+    // Glow effect
+    ctx.fillStyle = 'rgba(255,179,71,0.15)';
+    ctx.beginPath(); ctx.arc(tx + tw/2, ty + th/2, T * 3, 0, Math.PI * 2); ctx.fill();
   }
 
   // Time-of-day tint
@@ -1167,9 +1338,9 @@ async function drawSceneBG(ctx) {
   // Night stars
   if (state.timeOfDay === 3 && !SCENE_DATA[state.location].indoor) {
     ctx.fillStyle = '#fff';
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < 20; i++) {
       ctx.globalAlpha = 0.3 + Math.random() * 0.5;
-      ctx.fillRect(Math.random() * SCENE_PX, Math.random() * TILE * 2, 1, 1);
+      ctx.fillRect(Math.random() * SCENE_PX, Math.random() * T * 2, 2, 2);
     }
     ctx.globalAlpha = 1;
   }
@@ -1192,7 +1363,7 @@ async function sceneFrame() {
   for (const npc of sceneNPCs) {
     npc.update(1);
     if (npc.x > -TILE && npc.x < SCENE_PX + TILE && npc.y > -TILE && npc.y < SCENE_PH + TILE) {
-      await drawCharSprite(ctx, npc.getSpriteFiles(), npc.x, npc.y + TILE, npc.dir, npc.frame, 0.5);
+      await drawCharSprite(ctx, npc.getSpriteFiles(), npc.x, npc.y + TILE, npc.dir, npc.frame, 1.0);
     }
   }
 
@@ -1220,7 +1391,7 @@ async function sceneFrame() {
 
   // Draw player
   const pfiles = getPlayerSpriteFiles();
-  await drawCharSprite(ctx, pfiles, playerPos.x * TILE + TILE / 2, playerPos.y * TILE + TILE, playerDir, playerTarget ? playerFrame : 0, 0.5);
+  await drawCharSprite(ctx, pfiles, playerPos.x * TILE + TILE / 2, playerPos.y * TILE + TILE, playerDir, playerTarget ? playerFrame : 0, 1.0);
 
   sceneLoop = requestAnimationFrame(sceneFrame);
 }
@@ -1291,7 +1462,7 @@ function renderLocation() {
   actionsHTML += `<button class="magic-btn" onclick="Game.advanceTime()">Wait (${getTimeName()} → ${TIME_NAMES[(state.timeOfDay + 1) % 4]})</button>`;
 
   scene.innerHTML = `
-    <canvas id="scene-canvas" width="${SCENE_PX}" height="${SCENE_PH}"></canvas>
+    <canvas id="scene-canvas" width="${SCENE_PX}" height="${SCENE_PH}" style="image-rendering:pixelated;image-rendering:crisp-edges"></canvas>
     <div class="scene-hud">
       <span>${timeEmoji} ${getTimeName()}</span>
       <span>${loc.name}</span>
@@ -1369,12 +1540,20 @@ function startReading() {
   if (state.energy < 20) { showToast('Too tired for a reading! Rest first.'); return; }
   if (state.timeOfDay >= 3) { showToast("It's too late for readings. Rest and try tomorrow."); return; }
 
+  // If called from action bar (not NPC), show NPC request dialog
+  showNPCReadingRequest();
+}
+
+function startReadingWithType(type) {
+  type = type || currentReadingType;
+  const rt = READING_TYPES[type] || READING_TYPES.three_card;
   state.energy -= 20;
   revealedCount = 0;
 
-  // Draw 3 cards
+  // Draw cards based on reading type
+  const cardCount = rt.cardCount;
   const shuffled = [...fullDeck].sort(() => Math.random() - 0.5);
-  readingCards = shuffled.slice(0, 3).map(card => ({
+  readingCards = shuffled.slice(0, cardCount).map(card => ({
     ...card,
     reversed: Math.random() < 0.35,
     revealed: false,
@@ -1385,12 +1564,26 @@ function startReading() {
   const moonPhase = getMoonPhase(state.day);
   $('#reading-moon-bonus').textContent = moonBonus > 1 ? `${moonPhase.symbol} ${moonPhase.name} (+${Math.round((moonBonus-1)*100)}%)` : moonPhase.symbol + ' ' + moonPhase.name;
 
+  // Update reading type label
+  $('#reading-type-label').textContent = rt.name + ' Spread';
+
+  // Update spread labels
+  const labelsEl = $('#spread-labels');
+  labelsEl.innerHTML = rt.labels.map(l => `<div class="spread-label">${l}</div>`).join('');
+
   // Render cards
   const spread = $('#card-spread');
   spread.innerHTML = '';
+  // Adjust card size for celtic cross
+  if (type === 'celtic_cross') {
+    spread.style.gap = '10px';
+  } else {
+    spread.style.gap = '20px';
+  }
   readingCards.forEach((card, i) => {
     const slot = document.createElement('div');
     slot.className = 'card-slot';
+    if (type === 'celtic_cross') slot.style.cssText = '--card-w:100px;--card-h:155px;width:100px;height:155px';
     slot.innerHTML = `
       <div class="card" data-idx="${i}">
         <div class="card-inner">
@@ -1410,7 +1603,7 @@ function startReading() {
           <div class="card-front">
             <div class="card-number">${card.number !== undefined ? (card.number === 0 ? '0' : card.number) : ''}</div>
             <div class="card-illustration" ${card.reversed ? 'style="transform:rotate(180deg)"' : ''}>
-              <div class="card-art-symbol">${getCardSymbol(card)}</div>
+              ${card.image ? `<img class="card-art-image" src="${card.image}" alt="${card.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"><div class="card-art-symbol" style="display:none">${getCardSymbol(card)}</div>` : `<div class="card-art-symbol">${getCardSymbol(card)}</div>`}
             </div>
             <div class="card-name">${card.name}</div>
             <div class="card-orientation ${card.reversed ? 'reversed' : 'upright'}">${card.reversed ? '↓ Reversed' : '↑ Upright'}</div>
@@ -1450,21 +1643,21 @@ function revealCard(cardEl) {
     if (!isNaN(idx)) showInterpretation(idx);
   }, 800);
 
-  if (revealedCount >= 3) {
+  if (revealedCount >= readingCards.length) {
     $('#reading-hint').style.display = 'none';
     $('#btn-finish-reading').style.display = 'inline-block';
   }
 }
 
-const SPREAD_LABELS = ['Past', 'Present', 'Future'];
-
 function showInterpretation(idx) {
   const card = readingCards[idx];
   if (!card) return;
+  const rt = READING_TYPES[currentReadingType] || READING_TYPES.three_card;
+  const posLabel = rt.labels[idx] || '';
   const bubble = $('#interpretation-bubble');
   bubble.innerHTML = `
     <div class="interp-header">
-      <span class="interp-position">${SPREAD_LABELS[idx] || ''}</span>
+      <span class="interp-position">${posLabel}</span>
       <span class="interp-name">${card.name} ${card.reversed ? '(Reversed)' : ''}</span>
       <button class="interp-close" onclick="this.closest('#interpretation-bubble').style.display='none'">✕</button>
     </div>
@@ -2024,6 +2217,9 @@ async function init() {
 // Expose public API for inline handlers
 window.Game = {
   startReading,
+  startReadingWithType,
+  acceptReading,
+  declineReading,
   buyBroom,
   buyPermit,
   rest,
